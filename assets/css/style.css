@@ -1,0 +1,119 @@
+/* Custom styles for Pet Veterinary System */
+
+/* Global styles */
+body {
+    font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+/* Header and navigation styles */
+.nav-link-hover:hover {
+    color: #0d9488;
+    transition: color 0.2s ease;
+}
+
+/* Form styles */
+.form-input:focus {
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Notifications */
+.notification {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.notification.opacity-0 {
+    opacity: 0;
+}
+
+/* Modal backgrounds */
+.modal-backdrop {
+    backdrop-filter: blur(4px);
+}
+
+/* Custom buttons */
+.btn-primary {
+    background-color: #0d9488;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0f766e;
+}
+
+/* Pet species icons */
+.pet-icon-dog {
+    color: #3b82f6;
+}
+
+.pet-icon-cat {
+    color: #f59e0b;
+}
+
+.pet-icon-bird {
+    color: #10b981;
+}
+
+.pet-icon-rabbit {
+    color: #8b5cf6;
+}
+
+/* Custom appointment status indicators */
+.status-scheduled {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-completed {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.status-cancelled {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-no-show {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .mobile-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none;
+    }
+    
+    .print-full-width {
+        width: 100%;
+    }
+}

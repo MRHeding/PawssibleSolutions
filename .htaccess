@@ -1,0 +1,24 @@
+# Custom error pages
+ErrorDocument 404 /PROMPT/404.php
+ErrorDocument 500 /PROMPT/error.php
+
+# Enable URL rewriting
+RewriteEngine On
+
+# Prevent directory listing
+Options -Indexes
+
+# Protect .htaccess file
+<Files .htaccess>
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Protect database and configuration files
+<FilesMatch "^(config|db)\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Disable server signature
+ServerSignature Off
