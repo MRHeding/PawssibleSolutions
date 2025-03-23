@@ -17,8 +17,8 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <a href="index.php" class="flex items-center">
-                        <img src="assets/images/logo.png" alt="PetCare Clinic Logo" class="h-10 mr-3">
-                        <span class="text-xl font-bold text-violet-600">PawssibleSolutions</span>
+                        <img src="assets/images/logo.png" alt="PetCare Clinic Logo" class="h-14 w-auto mr-3">
+                        <span class="text-xl font-bold text-violet-600">PawssibleSolutions <br> Veterinary Clinic</span>
                     </a>
                     
                     <div class="hidden md:flex items-center space-x-6 ml-10">

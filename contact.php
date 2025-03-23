@@ -55,7 +55,7 @@ include_once 'includes/header.php';
                     </div>
                     <div>
                         <h3 class="font-semibold text-gray-800">Location</h3>
-                        <p class="text-gray-600">123 Pet Street<br>Veterinary City, VC 12345</p>
+                        <p class="text-gray-600">Briana Catapang Tower<br>MCLL Highway,Guiwan, Zamboanga City</p>
                     </div>
                 </div>
                 
@@ -65,7 +65,7 @@ include_once 'includes/header.php';
                     </div>
                     <div>
                         <h3 class="font-semibold text-gray-800">Phone</h3>
-                        <p class="text-gray-600">+1 (123) 456-7890</p>
+                        <p class="text-gray-600">+63 09477312312</p>
                         <p class="text-gray-500 text-sm mt-1">For emergencies after hours: +1 (123) 456-7899</p>
                     </div>
                 </div>
@@ -76,7 +76,7 @@ include_once 'includes/header.php';
                     </div>
                     <div>
                         <h3 class="font-semibold text-gray-800">Email</h3>
-                        <p class="text-gray-600">info@petcareclinic.com</p>
+                        <p class="text-gray-600">psvc.inc@gmail.com</p>
                         <p class="text-gray-500 text-sm mt-1">For appointments: appointments@petcareclinic.com</p>
                     </div>
                 </div>

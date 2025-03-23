@@ -65,7 +65,7 @@ $records_stmt->execute();
 include_once 'includes/header.php';
 ?>
 
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-10">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-10">
     <div class="container mx-auto px-4">
         <h1 class="text-3xl font-bold text-white">Welcome, <?php echo $first_name . ' ' . $last_name; ?></h1>
         <p class="text-white text-opacity-90 mt-2">Manage your pets' health and appointments</p>
