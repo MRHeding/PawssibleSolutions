@@ -72,26 +72,26 @@ include_once 'includes/header.php';
                 </div>
             </div>
             
-            <!-- Dental Care -->
+            <!-- Deworming Care -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 <div class="h-48 bg-purple-500 flex items-center justify-center">
-                    <i class="fas fa-tooth text-white text-6xl"></i>
+                    <i class="fas fa-worm text-white text-6xl"></i>
                 </div>
                 <div class="p-6">
-                    <h3 class="text-xl font-bold mb-3">Dental Care</h3>
-                    <p class="text-gray-600 mb-4">Maintain your pet's oral health with our comprehensive dental services.</p>
+                    <h3 class="text-xl font-bold mb-3">Deworming</h3>
+                    <p class="text-gray-600 mb-4">Ensure your pet is free from parasites with our effective deworming treatments.</p>
                     <ul class="space-y-2 text-gray-600">
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                            <span>Professional teeth cleaning</span>
+                            <span>Comprehensive deworming plans</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                            <span>Digital dental X-rays</span>
+                            <span>Fecal examinations</span>
                         </li>
                         <li class="flex items-start">
                             <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
-                            <span>Extractions and oral surgery</span>
+                            <span>Preventative treatments</span>
                         </li>
                     </ul>
                 </div>
@@ -100,7 +100,7 @@ include_once 'includes/header.php';
             <!-- Surgery -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 <div class="h-48 bg-red-500 flex items-center justify-center">
-                    <i class="fas fa-procedures text-white text-6xl"></i>
+                    <i class="fa-solid fa-kit-medical text-white text-6xl"></i>
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-bold mb-3">Surgical Services</h3>
@@ -174,132 +174,7 @@ include_once 'includes/header.php';
         </div>
     </div>
     
-    <!-- Service Packages -->
-    <div class="mb-16">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-800">Pet Care Packages</h2>
-            <p class="text-gray-600 mt-2">Choose a package that suits your pet's needs</p>
-        </div>
-        
-        <div class="grid md:grid-cols-3 gap-8">
-            <!-- Basic Package -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden border-t-4 border-blue-500">
-                <div class="p-6">
-                    <h3 class="text-2xl font-bold text-center mb-2">Basic Care</h3>
-                    <div class="text-center mb-6">
-                        <span class="text-4xl font-bold">$99</span>
-                        <span class="text-gray-600">/year</span>
-                    </div>
-                    <ul class="space-y-3 mb-6">
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Annual wellness exam</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Core vaccinations</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Basic health screening</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>10% off additional services</span>
-                        </li>
-                    </ul>
-                    <div class="text-center">
-                        <a href="contact.php" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full inline-block transition">
-                            Learn More
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Standard Package -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden border-t-4 border-teal-500 transform scale-105">
-                <div class="bg-teal-500 text-white text-center py-2 text-sm font-bold">
-                    MOST POPULAR
-                </div>
-                <div class="p-6">
-                    <h3 class="text-2xl font-bold text-center mb-2">Standard Care</h3>
-                    <div class="text-center mb-6">
-                        <span class="text-4xl font-bold">$199</span>
-                        <span class="text-gray-600">/year</span>
-                    </div>
-                    <ul class="space-y-3 mb-6">
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Two wellness exams</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>All recommended vaccinations</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Comprehensive blood work</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Dental assessment</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>15% off additional services</span>
-                        </li>
-                    </ul>
-                    <div class="text-center">
-                        <a href="contact.php" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-full inline-block transition">
-                            Learn More
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Premium Package -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden border-t-4 border-purple-500">
-                <div class="p-6">
-                    <h3 class="text-2xl font-bold text-center mb-2">Premium Care</h3>
-                    <div class="text-center mb-6">
-                        <span class="text-4xl font-bold">$299</span>
-                        <span class="text-gray-600">/year</span>
-                    </div>
-                    <ul class="space-y-3 mb-6">
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Quarterly wellness exams</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>All vaccinations & boosters</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Advanced diagnostic panel</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Dental cleaning</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>Unlimited consultations</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
-                            <span>25% off additional services</span>
-                        </li>
-                    </ul>
-                    <div class="text-center">
-                        <a href="contact.php" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-full inline-block transition">
-                            Learn More
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
     
     <!-- Specialty Services -->
     <div>

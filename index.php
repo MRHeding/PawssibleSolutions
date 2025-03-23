@@ -9,7 +9,7 @@ include_once 'includes/header.php';
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center text-white">
             <h1 class="text-5xl font-bold mb-6">Expert Veterinary Care For Your Pet Family</h1>
-            <p class="text-xl mb-8">Schedule appointments, access medical records, and manage your pet's health care all in one place.</p>
+            <p class="text-xl mb-8">Compassionate Care for your beloved pet with our exceptional services. Schedule appointments, access medical records, and manage your pet's health all in one place.</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="schedule_appointment.php" class="bg-white text-violet-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition">
@@ -212,7 +212,7 @@ include_once 'includes/header.php';
     <div class="container mx-auto px-4">
         <div class="max-w-3xl mx-auto text-center">
             <h2 class="text-3xl font-bold text-gray-800 mb-6">Ready to provide the best care for your pet?</h2>
-            <p class="text-xl text-gray-600 mb-8">Join thousands of pet parents who trust PetCare Veterinary Clinic with their furry family members' health.</p>
+            <p class="text-xl text-gray-600 mb-8">Join many pet parents in Zamboanga City who trust Pawssible Solutions with their furry family members' health.</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="schedule_appointment.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-8 rounded-lg transition">

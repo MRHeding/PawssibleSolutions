@@ -31,9 +31,9 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Services</h4>
                     <ul class="space-y-2">
-                        <li><a href="services.php#wellness" class="text-gray-300 hover:text-white transition">Wellness Exams</a></li>
+                        <li><a href="services.php#wellness" class="text-gray-300 hover:text-white transition">Consultations</a></li>
                         <li><a href="services.php#vaccinations" class="text-gray-300 hover:text-white transition">Vaccinations</a></li>
-                        <li><a href="services.php#dental" class="text-gray-300 hover:text-white transition">Dental Care</a></li>
+                        <li><a href="services.php#dental" class="text-gray-300 hover:text-white transition">Deworming</a></li>
                         <li><a href="services.php#surgery" class="text-gray-300 hover:text-white transition">Surgery</a></li>
                     </ul>
                 </div>

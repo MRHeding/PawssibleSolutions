@@ -15,18 +15,18 @@ include_once 'includes/header.php';
 
 <div class="container mx-auto px-4 py-16">
     <!-- Our Story Section -->
-    <div class="max-w-4xl mx-auto mb-20">
+    <div class="max-w-4xl mx-auto mb-20 text-center">
         <div class="text-center mb-12">
             <h2 class="text-3xl font-bold text-gray-800">Our Story</h2>
-            <div class="w-20 h-1 bg-teal-500 mx-auto mt-4 mb-8"></div>
+            <div class="w-20 h-1 bg-violet-500 mx-auto mt-4 mb-8"></div>
         </div>
         
-        <div class="prose prose-lg max-w-none">
-            <p>Founded in 2005 by Dr. Sarah Johnson, PetCare Clinic began as a small practice dedicated to providing exceptional veterinary care to the local community. Dr. Johnson's vision was simple: create a warm, welcoming environment where pets receive top-quality medical care and their owners are treated as partners in their pet's health journey.</p>
+        <div class="prose prose-lg max-w-none mx-auto">
+            <p>To assist clients' pets in living long, happy, and healthy lives. An excellent connection with the veterinarian is essential for your pet's well-being. Everyone at Pawssible Solution Veterinary Clinic is dedicated to providing professional, compassionate, and personalized service. Pawssible Solution Veterinary Clinic takes pleasure in adhering to the best veterinary medicine standards. We have a full-service clinic with cutting-edge veterinary medical technologies.</p>
             
-            <p class="my-6">Over the years, our clinic has grown from a team of three to over twenty dedicated professionals, including veterinarians with various specialties, certified veterinary technicians, and compassionate support staff. Despite our growth, we've maintained our commitment to personalized care and building lasting relationships with our clients and their furry family members.</p>
+            <p class="my-6">We care for our patients as if they were our own pets, and we strive to provide customers with the treatment they envision and deserve.</p>
             
-            <p>Today, PetCare Clinic is proud to be a state-of-the-art veterinary facility offering comprehensive services that combine advanced medical technology with traditional compassionate care. Our mission remains unchanged: to enhance and extend the quality of pets' lives through exceptional veterinary medicine and client education.</p>
+            <p>We adopt an individualized approach to each of our patients' long-term care and are committed to giving our clients with enough knowledge to make proper decisions on the health care of their animal companions.</p>
         </div>
     </div>
     
