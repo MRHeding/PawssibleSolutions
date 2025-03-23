@@ -5,24 +5,24 @@ include_once 'includes/header.php';
 ?>
 
 <!-- Hero Section -->
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-20">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-20">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center text-white">
             <h1 class="text-5xl font-bold mb-6">Expert Veterinary Care For Your Pet Family</h1>
             <p class="text-xl mb-8">Schedule appointments, access medical records, and manage your pet's health care all in one place.</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="schedule_appointment.php" class="bg-white text-teal-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition">
+                    <a href="schedule_appointment.php" class="bg-white text-violet-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition">
                         Schedule Appointment
                     </a>
-                    <a href="my_pets.php" class="bg-teal-700 hover:bg-teal-800 text-white font-bold py-3 px-8 rounded-lg transition">
+                    <a href="my_pets.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-8 rounded-lg transition">
                         View My Pets
                     </a>
                 <?php else: ?>
-                    <a href="login.php" class="bg-white text-teal-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition">
+                    <a href="login.php" class="bg-white text-violet-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition">
                         Sign In
                     </a>
-                    <a href="register.php" class="bg-teal-700 hover:bg-teal-800 text-white font-bold py-3 px-8 rounded-lg transition">
+                    <a href="register.php" class="bg-violet-700 hover:bg-violet-800 text-white font-bold py-3 px-8 rounded-lg transition">
                         Register Now
                     </a>
                 <?php endif; ?>
@@ -72,13 +72,13 @@ include_once 'includes/header.php';
         </div>
         
         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            <div class="h-48 bg-purple-500 flex items-center justify-center">
+            <div class="h-48 bg-red-500 flex items-center justify-center">
                 <i class="fas fa-procedures text-white text-6xl"></i>
             </div>
             <div class="p-6">
                 <h3 class="text-xl font-bold mb-3">Surgical Procedures</h3>
                 <p class="text-gray-600 mb-4">Expert surgical care with state-of-the-art monitoring and pain management.</p>
-                <a href="services.php#surgery" class="text-purple-600 hover:text-purple-800 inline-flex items-center">
+                <a href="services.php#surgery" class="text-red-600 hover:text-red-800 inline-flex items-center">
                     Learn More
                     <svg class="w-4 h-4 ml-1" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
                         <path d="M5 12h14M12 5l7 7-7 7"></path>
@@ -89,7 +89,7 @@ include_once 'includes/header.php';
     </div>
     
     <div class="text-center mt-10">
-        <a href="services.php" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg transition">
+        <a href="services.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-6 rounded-lg transition">
             View All Services
         </a>
     </div>
@@ -157,7 +157,7 @@ include_once 'includes/header.php';
             </div>
             <p class="text-gray-600 mb-6 italic">"The online appointment system makes scheduling so easy! Dr. Johnson is wonderful with my anxious rescue dog, and the staff always go above and beyond."</p>
             <div class="flex items-center">
-                <img src="assets/images/client-1.jpg" alt="Jennifer S." class="w-10 h-10 rounded-full mr-4">
+                <img src="assets/images/client-1.png" alt="Jennifer S." class="w-10 h-10 rounded-full mr-4">
                 <div>
                     <h4 class="font-semibold">Jennifer S.</h4>
                     <p class="text-sm text-gray-500">Dog owner</p>
@@ -177,7 +177,7 @@ include_once 'includes/header.php';
             </div>
             <p class="text-gray-600 mb-6 italic">"Being able to see my cats' medical records online is incredibly helpful. The vets explain everything thoroughly and always make my skittish cats feel comfortable."</p>
             <div class="flex items-center">
-                <img src="assets/images/client-2.jpg" alt="Robert T." class="w-10 h-10 rounded-full mr-4">
+                <img src="assets/images/client-2.png" alt="Robert T." class="w-10 h-10 rounded-full mr-4">
                 <div>
                     <h4 class="font-semibold">Robert T.</h4>
                     <p class="text-sm text-gray-500">Cat owner</p>
@@ -197,7 +197,7 @@ include_once 'includes/header.php';
             </div>
             <p class="text-gray-600 mb-6 italic">"When my puppy needed emergency surgery, Dr. Smith was amazing. The follow-up care instructions in the app helped us keep track of medications and recovery milestones."</p>
             <div class="flex items-center">
-                <img src="assets/images/client-3.jpg" alt="Maria G." class="w-10 h-10 rounded-full mr-4">
+                <img src="assets/images/client-3.png" alt="Maria G." class="w-10 h-10 rounded-full mr-4">
                 <div>
                     <h4 class="font-semibold">Maria G.</h4>
                     <p class="text-sm text-gray-500">Puppy parent</p>
@@ -215,11 +215,11 @@ include_once 'includes/header.php';
             <p class="text-xl text-gray-600 mb-8">Join thousands of pet parents who trust PetCare Veterinary Clinic with their furry family members' health.</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="schedule_appointment.php" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-lg transition">
+                    <a href="schedule_appointment.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-8 rounded-lg transition">
                         Schedule Now
                     </a>
                 <?php else: ?>
-                    <a href="register.php" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-lg transition">
+                    <a href="register.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-8 rounded-lg transition">
                         Register Now
                     </a>
                     <a href="login.php" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg transition">

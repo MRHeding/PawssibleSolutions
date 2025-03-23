@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 include_once 'includes/header.php';
 ?>
 
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-20">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-20">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center text-white">
             <h1 class="text-5xl font-bold mb-6">Contact Us</h1>
@@ -173,7 +173,7 @@ include_once 'includes/header.php';
                     <textarea name="message" id="message" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required><?php echo isset($message) ? htmlspecialchars($message) : ''; ?></textarea>
                 </div>
                 
-                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
                     Send Message
                 </button>
             </form>
@@ -184,13 +184,8 @@ include_once 'includes/header.php';
     <div class="mt-16">
         <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Find Us</h2>
         <div class="w-full h-96 bg-gray-200 rounded-lg shadow-md overflow-hidden">
-            <!-- This is where you would embed a Google Maps iframe -->
-            <div class="w-full h-full flex items-center justify-center bg-gray-300">
-                <p class="text-gray-600">Map would be embedded here in a real application</p>
-            </div>
-            
-            <!-- Example of a Google Maps embed: -->
-            <!-- <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3..." width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe> -->
+            <!-- Embedded Google Maps iframe -->
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.680037567543!2d122.08331087535801!3d6.928794993071042!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x325043007b47e275%3A0xb88f563d3095a59b!2sPawssible%20Solutions%20Veterinary%20Clinic!5e0!3m2!1sen!2sph!4v1742738941689!5m2!1sen!2sph" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
         </div>
     </div>
 </div>

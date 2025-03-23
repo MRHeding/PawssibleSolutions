@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 include_once 'includes/header.php';
 ?>
 
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-12">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-12">
     <div class="container mx-auto px-4">
         <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
             <div class="py-4 px-8">

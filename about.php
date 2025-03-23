@@ -4,7 +4,7 @@ include_once 'config/database.php';
 include_once 'includes/header.php';
 ?>
 
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-20">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-20">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center text-white">
             <h1 class="text-5xl font-bold mb-6">About PetCare Clinic</h1>

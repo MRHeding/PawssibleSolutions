@@ -4,7 +4,7 @@ include_once 'config/database.php';
 include_once 'includes/header.php';
 ?>
 
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-20">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-20">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center text-white">
             <h1 class="text-5xl font-bold mb-6">Our Veterinary Services</h1>
@@ -388,7 +388,7 @@ include_once 'includes/header.php';
         <h3 class="text-2xl font-bold text-gray-800 mb-4">Ready to schedule your pet's appointment?</h3>
         <p class="text-gray-600 mb-8 max-w-2xl mx-auto">Our team of experienced veterinarians is ready to help your pet live a healthy and happy life. Book an appointment today and give your pet the care they deserve.</p>
         <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="schedule_appointment.php" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg transition">
+            <a href="schedule_appointment.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-6 rounded-lg transition">
                 Schedule Appointment
             </a>
             <a href="contact.php" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition">

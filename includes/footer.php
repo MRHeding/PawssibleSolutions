@@ -3,8 +3,8 @@
         <div class="container mx-auto px-4">
             <div class="grid md:grid-cols-4 gap-8">
                 <div>
-                    <img src="assets/images/logo-white.png" alt="PetCare Clinic" class="h-10 mb-3">
-                    <p class="text-gray-300 mb-4">Providing quality veterinary care for your beloved pets since 2005.</p>
+                    <img src="assets/images/logo.png" alt="PetCare Clinic" class="h-10 mb-3">
+                    <p class="text-gray-300 mb-4">Providing quality veterinary care for your beloved pets</p>
                     <div class="flex space-x-4">
                         <a href="#" class="text-gray-300 hover:text-white transition">
                             <i class="fab fa-facebook-f"></i>
@@ -42,23 +42,23 @@
                     <h4 class="text-lg font-semibold mb-4">Contact Info</h4>
                     <ul class="space-y-2">
                         <li class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1 mr-2 text-teal-400"></i>
-                            <span>123 Pet Street<br>Veterinary City, VC 12345</span>
+                            <i class="fas fa-map-marker-alt mt-1 mr-2 text-violet-400"></i>
+                            <span>Briana Catapang Tower<br>MCLL Highway,Guiwan Zamboanga City</span>
                         </li>
                         <li class="flex items-center">
-                            <i class="fas fa-phone-alt mr-2 text-teal-400"></i>
-                            <span>(123) 456-7890</span>
+                            <i class="fas fa-phone-alt mr-2 text-violet-400"></i>
+                            <span>09477312312</span>
                         </li>
                         <li class="flex items-center">
-                            <i class="fas fa-envelope mr-2 text-teal-400"></i>
-                            <span>info@petcareclinic.com</span>
+                            <i class="fas fa-envelope mr-2 text-violet-400"></i>
+                            <span>psvc.inc@gmail.com</span>
                         </li>
                     </ul>
                 </div>
             </div>
             
             <div class="border-t border-gray-700 mt-8 pt-8 text-center">
-                <p>&copy; <?php echo date('Y'); ?> PetCare Veterinary Clinic. All rights reserved.</p>
+                <p>&copy; <?php echo date('Y'); ?> Pawssible Solutions Veterinary Clinic. All rights reserved.</p>
                 <p class="text-sm text-gray-400 mt-2">
                     <a href="privacy.php" class="hover:text-white">Privacy Policy</a> | 
                     <a href="terms.php" class="hover:text-white">Terms of Service</a>

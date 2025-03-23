@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetCare Veterinary Clinic</title>
+    <title>PawssibleSolutions</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -18,14 +18,14 @@
                 <div class="flex items-center">
                     <a href="index.php" class="flex items-center">
                         <img src="assets/images/logo.png" alt="PetCare Clinic Logo" class="h-10 mr-3">
-                        <span class="text-xl font-bold text-teal-600">PetCare Clinic</span>
+                        <span class="text-xl font-bold text-violet-600">PawssibleSolutions</span>
                     </a>
                     
                     <div class="hidden md:flex items-center space-x-6 ml-10">
-                        <a href="index.php" class="text-gray-700 hover:text-teal-600 transition">Home</a>
-                        <a href="services.php" class="text-gray-700 hover:text-teal-600 transition">Services</a>
-                        <a href="about.php" class="text-gray-700 hover:text-teal-600 transition">About Us</a>
-                        <a href="contact.php" class="text-gray-700 hover:text-teal-600 transition">Contact</a>
+                        <a href="index.php" class="text-gray-700 hover:text-violet-600 transition">Home</a>
+                        <a href="services.php" class="text-gray-700 hover:text-violet-600 transition">Services</a>
+                        <a href="about.php" class="text-gray-700 hover:text-violet-600 transition">About Us</a>
+                        <a href="contact.php" class="text-gray-700 hover:text-violet-600 transition">Contact</a>
                     </div>
                 </div>
                 
@@ -51,7 +51,7 @@
                         </div>
                     <?php else: ?>
                         <a href="login.php" class="text-gray-700 hover:text-teal-600 transition mr-4">Sign In</a>
-                        <a href="register.php" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded transition">Sign Up</a>
+                        <a href="register.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded transition">Sign Up</a>
                     <?php endif; ?>
                     
                     <!-- Mobile menu button -->
