@@ -50,7 +50,7 @@
                             </div>
                         </div>
                     <?php else: ?>
-                        <a href="login.php" class="text-gray-700 hover:text-teal-600 transition mr-4">Sign In</a>
+                        <a href="login.php" class="text-gray-700 hover:text-violet-600 transition mr-4">Sign In</a>
                         <a href="register.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded transition">Sign Up</a>
                     <?php endif; ?>
                     

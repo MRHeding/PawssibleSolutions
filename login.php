@@ -108,7 +108,7 @@ include_once 'includes/header.php';
                     </div>
                     
                     <div class="mb-6">
-                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                        <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
                             Sign In
                         </button>
                     </div>
