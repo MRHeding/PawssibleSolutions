@@ -8,7 +8,7 @@ include_once 'includes/header.php';
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center text-white">
             <h1 class="text-5xl font-bold mb-6">About PetCare Clinic</h1>
-            <p class="text-xl">Passionate about animal health and wellness since 2005</p>
+            <p class="text-xl">Passionate about animal health and wellness</p>
         </div>
     </div>
 </div>

@@ -237,7 +237,7 @@ include_once '../includes/admin_header.php';
                                     <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">$<?php echo number_format($item['unit_price'], 2); ?></div>
+                                    <div class="text-sm text-gray-900">₱<?php echo number_format($item['unit_price'], 2); ?></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900"><?php echo htmlspecialchars($item['supplier'] ?: 'N/A'); ?></div>
