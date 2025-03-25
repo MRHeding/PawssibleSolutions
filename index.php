@@ -5,8 +5,13 @@ include_once 'includes/header.php';
 ?>
 
 <!-- Hero Section -->
-<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-20">
-    <div class="container mx-auto px-4">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-20 relative">
+    <!-- Background image with overlay -->
+    <div class="absolute inset-0 z-0">
+        <img src="assets/images/logo.png" alt="Cats and Dogs" class="w-full h-full object-cover object-center opacity-20">
+    </div>
+    
+    <div class="container mx-auto px-4 relative z-10">
         <div class="max-w-4xl mx-auto text-center text-white">
             <h1 class="text-5xl font-bold mb-6">Expert Veterinary Care For Your Pet Family</h1>
             <p class="text-xl mb-8">Compassionate Care for your beloved pet with our exceptional services. Schedule appointments, access medical records, and manage your pet's health all in one place.</p>
@@ -73,7 +78,7 @@ include_once 'includes/header.php';
         
         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
             <div class="h-48 bg-red-500 flex items-center justify-center">
-                <i class="fas fa-procedures text-white text-6xl"></i>
+                <i class="fas fa-kit-medical text-white text-6xl"></i>
             </div>
             <div class="p-6">
                 <h3 class="text-xl font-bold mb-3">Surgical Procedures</h3>
