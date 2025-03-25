@@ -29,7 +29,7 @@
                     </button>
                 </div>
                 
-                <div class="hidden md:flex items-center space-x-6 ml-0">
+                <div class="hidden md:flex items-center space-x-6 absolute left-1/2 transform -translate-x-1/2">
                     <a href="index.php" class="text-gray-700 hover:text-violet-600 transition">Home</a>
                     <a href="services.php" class="text-gray-700 hover:text-violet-600 transition">Services</a>
                     <a href="about.php" class="text-gray-700 hover:text-violet-600 transition">About Us</a>
