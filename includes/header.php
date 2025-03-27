@@ -66,7 +66,7 @@
             <!-- Mobile menu, hidden by default -->
             <div class="hidden md:hidden mt-3" id="mobile-menu">
                 <div class="space-y-1 px-2 pt-2 pb-3">
-                    <a href="index.php" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700">Home</a>
+                    <a href="index.php" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-violet-50 hover:text-violet-700">Home</a>
                     <a href="services.php" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700">Services</a>
                     <a href="about.php" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700">About Us</a>
                     <a href="contact.php" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-teal-50 hover:text-teal-700">Contact</a>
