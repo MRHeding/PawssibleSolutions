@@ -75,11 +75,11 @@ $stmt->execute();
 include_once 'includes/header.php';
 ?>
 
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-10">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-10">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-bold text-white">My Appointments</h1>
-            <a href="schedule_appointment.php" class="bg-white hover:bg-gray-100 text-teal-600 font-bold py-2 px-4 rounded inline-flex items-center transition">
+            <a href="schedule_appointment.php" class="bg-white hover:bg-gray-100 text-violet-600 font-bold py-2 px-4 rounded inline-flex items-center transition">
                 <i class="fas fa-plus mr-2"></i> Schedule New
             </a>
         </div>
@@ -243,7 +243,7 @@ include_once 'includes/header.php';
                     You haven't scheduled any appointments yet.
                 <?php endif; ?>
             </p>
-            <a href="schedule_appointment.php" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded transition">
+            <a href="schedule_appointment.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-6 rounded transition">
                 Schedule an Appointment
             </a>
         </div>

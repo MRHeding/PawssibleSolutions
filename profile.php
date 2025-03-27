@@ -116,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 include_once 'includes/header.php';
 ?>
 
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-10">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-10">
     <div class="container mx-auto px-4">
         <h1 class="text-3xl font-bold text-white">My Profile</h1>
     </div>
@@ -188,7 +188,7 @@ include_once 'includes/header.php';
             </div>
             
             <div class="flex items-center justify-end mt-6 pt-6 border-t border-gray-200">
-                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline">
+                <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline">
                     Update Profile
                 </button>
             </div>

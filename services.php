@@ -190,8 +190,8 @@ include_once 'includes/header.php';
                         <i class="fas fa-paw text-indigo-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold mb-2">Dermatology</h3>
-                        <p class="text-gray-600 mb-3">Expert treatment for skin conditions, allergies, ear infections, and other dermatological issues that can cause discomfort for your pet.</p>
+                        <h3 class="text-xl font-bold mb-2">Add Feauture</h3>
+                        <p class="text-gray-600 mb-3">Information Here</p>
                         <a href="contact.php" class="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
                             Schedule Consultation
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -208,8 +208,8 @@ include_once 'includes/header.php';
                         <i class="fas fa-bone text-pink-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold mb-2">Orthopedics</h3>
-                        <p class="text-gray-600 mb-3">Specialized care for joint issues, fractures, ligament injuries, and other musculoskeletal problems to keep your pet mobile and pain-free.</p>
+                        <h3 class="text-xl font-bold mb-2">Add Feauture</h3>
+                        <p class="text-gray-600 mb-3">Information Here</p>
                         <a href="contact.php" class="text-pink-600 hover:text-pink-800 font-medium inline-flex items-center">
                             Schedule Consultation
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -226,8 +226,8 @@ include_once 'includes/header.php';
                         <i class="fas fa-brain text-amber-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold mb-2">Neurology</h3>
-                        <p class="text-gray-600 mb-3">Advanced diagnosis and treatment of neurological conditions affecting your pet's brain, spinal cord, nerves, and muscles.</p>
+                        <h3 class="text-xl font-bold mb-2">Add Feauture</h3>
+                        <p class="text-gray-600 mb-3">Information Here</p>
                         <a href="contact.php" class="text-amber-600 hover:text-amber-800 font-medium inline-flex items-center">
                             Schedule Consultation
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -244,8 +244,8 @@ include_once 'includes/header.php';
                         <i class="fas fa-stethoscope text-emerald-600 text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold mb-2">Cardiology</h3>
-                        <p class="text-gray-600 mb-3">Specialized care for pets with heart conditions, including diagnostic services, treatment plans, and ongoing management strategies.</p>
+                        <h3 class="text-xl font-bold mb-2">Add Feauture</h3>
+                        <p class="text-gray-600 mb-3">Information Here</p>
                         <a href="contact.php" class="text-emerald-600 hover:text-emerald-800 font-medium inline-flex items-center">
                             Schedule Consultation
                             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

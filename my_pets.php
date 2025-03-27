@@ -29,11 +29,11 @@ $stmt->execute();
 include_once 'includes/header.php';
 ?>
 
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-10">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-10">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-bold text-white">My Pets</h1>
-            <a href="add_pet.php" class="bg-white hover:bg-gray-100 text-teal-600 font-bold py-2 px-4 rounded inline-flex items-center transition">
+            <a href="add_pet.php" class="bg-white hover:bg-violet-100 text-violet-600 font-bold py-2 px-4 rounded inline-flex items-center transition">
                 <i class="fas fa-plus mr-2"></i> Add New Pet
             </a>
         </div>
@@ -116,7 +116,7 @@ include_once 'includes/header.php';
                                 <?php endif; ?>
                             </div>
                             <div class="flex justify-between items-center mt-4">
-                                <a href="pet_details.php?id=<?php echo $pet['id']; ?>" class="text-teal-600 hover:text-teal-800 font-medium">
+                                <a href="pet_details.php?id=<?php echo $pet['id']; ?>" class="text-violet-600 hover:text-violet-800 font-medium">
                                     View Details
                                 </a>
                                 <div class="flex space-x-2">
@@ -139,7 +139,7 @@ include_once 'includes/header.php';
                 </div>
                 <h3 class="text-xl font-bold text-gray-700 mb-2">No Pets Found</h3>
                 <p class="text-gray-600 mb-6">You haven't added any pets to your profile yet.</p>
-                <a href="add_pet.php" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded transition">
+                <a href="add_pet.php" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-6 rounded transition">
                     Add Your First Pet
                 </a>
             </div>

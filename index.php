@@ -160,7 +160,7 @@ include_once 'includes/header.php';
                     <i class="fas fa-star"></i>
                 </div>
             </div>
-            <p class="text-gray-600 mb-6 italic">"The online appointment system makes scheduling so easy! Dr. Johnson is wonderful with my anxious rescue dog, and the staff always go above and beyond."</p>
+            <p class="text-gray-600 mb-6 italic">"The online appointment system makes scheduling so easy! and the staff always go above and beyond."</p>
             <div class="flex items-center">
                 <img src="assets/images/client-1.png" alt="Jennifer S." class="w-10 h-10 rounded-full mr-4">
                 <div>
@@ -200,7 +200,7 @@ include_once 'includes/header.php';
                     <i class="fas fa-star"></i>
                 </div>
             </div>
-            <p class="text-gray-600 mb-6 italic">"When my puppy needed emergency surgery, Dr. Smith was amazing. The follow-up care instructions in the app helped us keep track of medications and recovery milestones."</p>
+            <p class="text-gray-600 mb-6 italic">"When my puppy needed emergency surgery, The follow-up care instructions in the app helped us keep track of medications and recovery milestones."</p>
             <div class="flex items-center">
                 <img src="assets/images/client-3.png" alt="Maria G." class="w-10 h-10 rounded-full mr-4">
                 <div>
