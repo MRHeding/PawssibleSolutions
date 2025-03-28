@@ -236,4 +236,9 @@ include_once 'includes/header.php';
     </div>
 </div>
 
+<!-- Floating Chatbot -->
+<div class="fixed bottom-5 right-5 z-50">
+  <iframe src="chatbot/chatbot.php" class=" w-[420px] h-[600px] border-0"></iframe>
+</div>
+
 <?php include_once 'includes/footer.php'; ?>
