@@ -87,7 +87,7 @@ $count_completed = $count_completed_stmt->fetchColumn();
 include_once '../includes/vet_header.php';
 ?>
 
-<div class="bg-gradient-to-r from-indigo-500 to-blue-500 py-10">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-10">
     <div class="container mx-auto px-4">
         <h1 class="text-3xl font-bold text-white">Welcome, Dr. <?php echo $first_name . ' ' . $last_name; ?></h1>
         <?php if (!empty($vet['specialization'])): ?>
