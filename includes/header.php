@@ -42,7 +42,7 @@
                             <button type="button" class="flex items-center space-x-2 text-gray-700 hover:text-violet-600 focus:outline-none" id="user-menu-button">
                                 <span class="font-medium"><?php echo $_SESSION['first_name']; ?></span>
                                 <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </button>
                             
@@ -94,7 +94,10 @@
         const userMenu = document.getElementById('user-menu');
         
         if (userMenuButton) {
-           
+            // Add the missing event listener for toggling the user menu
+            userMenuButton.addEventListener('click', () => {
+                userMenu.classList.toggle('show');
+            });
             
             // Close user menu when clicking outside
             document.addEventListener('click', (event) => {
