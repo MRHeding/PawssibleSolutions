@@ -166,7 +166,13 @@ include_once '../includes/admin_header.php';
                 </a>
             <?php endif; ?>
         </div>
-        <div>
+        <div class="flex gap-2">
+            <a href="import_inventory.php" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                <i class="fas fa-file-import mr-2"></i> Import
+            </a>
+            <a href="export_inventory.php" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                <i class="fas fa-file-export mr-2"></i> Export
+            </a>
             <a href="add_inventory.php" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                 <i class="fas fa-plus mr-2"></i> Add New Item
             </a>

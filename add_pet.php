@@ -107,10 +107,11 @@ include_once 'includes/header.php';
                         <option value="Other">Other</option>
                     </select>
                 </div>
-                
                 <div>
                     <label for="breed" class="block text-gray-700 text-sm font-bold mb-2">Breed</label>
-                    <input type="text" name="breed" id="breed" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <select name="breed" id="breed" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="">Select Breed</option>
+                    </select>
                 </div>
             </div>
             
@@ -160,17 +161,44 @@ include_once 'includes/header.php';
     document.addEventListener('DOMContentLoaded', function() {
         const speciesField = document.getElementById('species');
         const breedField = document.getElementById('breed');
-        
-        speciesField.addEventListener('change', function() {
-            // You could preload breed options based on species
-            if (this.value === 'Dog') {
-                breedField.placeholder = 'E.g., Labrador Retriever, German Shepherd';
-            } else if (this.value === 'Cat') {
-                breedField.placeholder = 'E.g., Siamese, Maine Coon';
-            } else {
-                breedField.placeholder = '';
-            }
-        });
+        const breedOptions = {
+            Dog: [
+                '', 'Labrador Retriever', 'German Shepherd', 'Golden Retriever', 'Bulldog', 'Beagle', 'Poodle', 'Rottweiler', 'Yorkshire Terrier', 'Dachshund', 'Other'
+            ],
+            Cat: [
+                '', 'Siamese', 'Maine Coon', 'Persian', 'Ragdoll', 'Bengal', 'Sphynx', 'British Shorthair', 'Abyssinian', 'Other'
+            ],
+            Bird: [
+                '', 'Parakeet', 'Cockatiel', 'Canary', 'Finch', 'Lovebird', 'Parrot', 'Macaw', 'Cockatoo', 'Other'
+            ],
+            Rabbit: [
+                '', 'Holland Lop', 'Netherland Dwarf', 'Mini Rex', 'Lionhead', 'Flemish Giant', 'English Lop', 'Other'
+            ],
+            'Guinea Pig': [
+                '', 'American', 'Abyssinian', 'Peruvian', 'Silkie', 'Teddy', 'Texel', 'Other'
+            ],
+            Hamster: [
+                '', 'Syrian', 'Dwarf Campbell Russian', 'Dwarf Winter White Russian', 'Roborovski', 'Chinese', 'Other'
+            ],
+            Reptile: [
+                '', 'Bearded Dragon', 'Leopard Gecko', 'Corn Snake', 'Ball Python', 'Red-Eared Slider', 'Chameleon', 'Other'
+            ],
+            Other: ['']
+        };
+        function updateBreedOptions() {
+            const species = speciesField.value;
+            const breeds = breedOptions[species] || [''];
+            breedField.innerHTML = '';
+            breeds.forEach(function(breed) {
+                const option = document.createElement('option');
+                option.value = breed;
+                option.textContent = breed === '' ? 'Select Breed' : breed;
+                breedField.appendChild(option);
+            });
+        }
+        speciesField.addEventListener('change', updateBreedOptions);
+        // Initialize on page load
+        updateBreedOptions();
     });
 </script>
 

@@ -101,6 +101,31 @@ while ($row = $monthly_trend_stmt->fetch(PDO::FETCH_ASSOC)) {
     $monthly_trend_data[$month_name] = $row['total'];
 }
 
+// 7. Report of the Day (today's summary)
+$today = date('Y-m-d');
+$report_of_day = [];
+
+// Appointments today
+$today_appt_query = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed, SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled, SUM(CASE WHEN status = 'no-show' THEN 1 ELSE 0 END) as no_show FROM appointments WHERE appointment_date = :today";
+$today_appt_stmt = $db->prepare($today_appt_query);
+$today_appt_stmt->bindParam(':today', $today);
+$today_appt_stmt->execute();
+$report_of_day['appointments'] = $today_appt_stmt->fetch(PDO::FETCH_ASSOC);
+
+// New clients today
+$today_clients_query = "SELECT COUNT(*) as count FROM users WHERE role = 'client' AND DATE(created_at) = :today";
+$today_clients_stmt = $db->prepare($today_clients_query);
+$today_clients_stmt->bindParam(':today', $today);
+$today_clients_stmt->execute();
+$report_of_day['new_clients'] = $today_clients_stmt->fetchColumn();
+
+// New pets today
+$today_pets_query = "SELECT COUNT(*) as count FROM pets WHERE DATE(created_at) = :today";
+$today_pets_stmt = $db->prepare($today_pets_query);
+$today_pets_stmt->bindParam(':today', $today);
+$today_pets_stmt->execute();
+$report_of_day['new_pets'] = $today_pets_stmt->fetchColumn();
+
 include_once '../includes/admin_header.php';
 ?>
 
@@ -146,6 +171,30 @@ include_once '../includes/admin_header.php';
         </form>
     </div>
     
+    <!-- Report of the Day -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold mb-4 text-gray-700">Report of the Day (<?php echo date('F j, Y'); ?>)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="text-2xl font-bold mb-2"><?php echo $report_of_day['appointments']['total']; ?></div>
+                <div class="text-gray-600">Appointments Today</div>
+                <div class="text-xs mt-1">
+                    Completed: <?php echo $report_of_day['appointments']['completed']; ?>,
+                    Cancelled: <?php echo $report_of_day['appointments']['cancelled']; ?>,
+                    No-show: <?php echo $report_of_day['appointments']['no_show']; ?>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold mb-2"><?php echo $report_of_day['new_clients']; ?></div>
+                <div class="text-gray-600">New Clients Today</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold mb-2"><?php echo $report_of_day['new_pets']; ?></div>
+                <div class="text-gray-600">New Pets Today</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Report Content -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6">
@@ -324,9 +373,34 @@ new Chart(ctx, {
 
 // Export report function
 function exportReport() {
-    // In a real application, you'd implement proper export functionality
-    // This is just a placeholder
-    alert('Report export functionality would generate CSV/PDF here');
+    // Export the visible report as CSV
+    let csv = [];
+    // Example: Export Vet Workload Table
+    const table = document.querySelector('table');
+    if (!table) {
+        alert('No table found to export.');
+        return;
+    }
+    const rows = table.querySelectorAll('tr');
+    for (let row of rows) {
+        let cols = row.querySelectorAll('th, td');
+        let rowData = [];
+        for (let col of cols) {
+            // Remove "Dr. " prefix for cleaner CSV
+            let text = col.innerText.replace(/^Dr\. /, '');
+            rowData.push('"' + text.replace(/"/g, '""') + '"');
+        }
+        csv.push(rowData.join(','));
+    }
+    // Download CSV
+    let csvContent = csv.join('\n');
+    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    let link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'report.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 </script>
 
