@@ -96,10 +96,12 @@ include_once '../includes/admin_header.php';
 <div class="bg-gradient-to-r from-violet-600 to-purple-600 py-10">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-white">Manage Appointments</h1>
-            <div>
+            <h1 class="text-3xl font-bold text-white">Manage Appointments</h1>            <div>
                 <a href="add_appointment.php" class="bg-white hover:bg-gray-100 text-purple-600 font-bold py-2 px-4 rounded inline-flex items-center transition mr-2">
                     <i class="fas fa-plus mr-2"></i> Add New
+                </a>
+                <a href="export_appointments.php<?php echo !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : ''; ?>" class="bg-white hover:bg-gray-100 text-green-600 font-bold py-2 px-4 rounded inline-flex items-center transition mr-2">
+                    <i class="fas fa-download mr-2"></i> Export CSV
                 </a>
                 <a href="appointment_calendar.php" class="bg-white hover:bg-gray-100 text-blue-600 font-bold py-2 px-4 rounded inline-flex items-center transition">
                     <i class="fas fa-calendar-alt mr-2"></i> Calendar View
