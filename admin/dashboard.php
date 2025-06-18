@@ -127,6 +127,12 @@ include_once '../includes/admin_header.php';
                 <span class="block text-gray-800 font-medium">Manage Clients</span>
             </a>
             
+            <!-- Payment Management Block -->
+            <a href="payments.php" class="bg-emerald-50 hover:bg-emerald-100 p-4 rounded-lg text-center transition">
+                <i class="fas fa-peso-sign text-emerald-600 mx-auto mb-2 text-2xl block"></i>
+                <span class="block text-gray-800 font-medium">Payment & Billing</span>
+            </a>
+            
             <a href="medical_records.php" class="bg-teal-50 hover:bg-teal-100 p-4 rounded-lg text-center transition">
                 <svg class="w-8 h-8 text-teal-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

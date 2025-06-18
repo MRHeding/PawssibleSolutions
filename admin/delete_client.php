@@ -46,10 +46,37 @@ try {
     $pets_stmt->execute();
     $pet_ids = $pets_stmt->fetchAll(PDO::FETCH_COLUMN, 0);
     
+    // Delete invoices directly related to the client
+    $client_invoices_query = "DELETE FROM invoices WHERE client_id = :client_id";
+    $client_invoices_stmt = $db->prepare($client_invoices_query);
+    $client_invoices_stmt->bindParam(':client_id', $client_id);
+    $client_invoices_stmt->execute();
+    
     // If client has pets, delete related records first to maintain integrity
     if (count($pet_ids) > 0) {
         // Placeholder for the IN clause
         $placeholders = implode(',', array_fill(0, count($pet_ids), '?'));
+        
+        // Delete invoice items for invoices related to appointments of this client's pets
+        $invoice_items_query = "DELETE ii FROM invoice_items ii 
+                               JOIN invoices i ON ii.invoice_id = i.id 
+                               JOIN appointments a ON i.appointment_id = a.id 
+                               WHERE a.pet_id IN ($placeholders)";
+        $invoice_items_stmt = $db->prepare($invoice_items_query);
+        foreach ($pet_ids as $index => $pet_id) {
+            $invoice_items_stmt->bindValue($index + 1, $pet_id);
+        }
+        $invoice_items_stmt->execute();
+        
+        // Delete invoices related to appointments of this client's pets
+        $pet_invoices_query = "DELETE i FROM invoices i 
+                              JOIN appointments a ON i.appointment_id = a.id 
+                              WHERE a.pet_id IN ($placeholders)";
+        $pet_invoices_stmt = $db->prepare($pet_invoices_query);
+        foreach ($pet_ids as $index => $pet_id) {
+            $pet_invoices_stmt->bindValue($index + 1, $pet_id);
+        }
+        $pet_invoices_stmt->execute();
         
         // Delete vaccination records
         $vac_query = "DELETE FROM vaccination_records WHERE pet_id IN ($placeholders)";

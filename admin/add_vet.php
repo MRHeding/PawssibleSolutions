@@ -19,6 +19,7 @@ $specialization = '';
 $license_number = '';
 $years_of_experience = '';
 $bio = '';
+$custom_password = '';
 
 // Initialize database connection
 $database = new Database();
@@ -35,7 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $license_number = trim($_POST['license_number']);
     $years_of_experience = trim($_POST['years_of_experience']);
     $bio = trim($_POST['bio']);
-    $password = password_hash('Vet@'.date('Y'), PASSWORD_DEFAULT); // Default password
+    $custom_password = trim($_POST['password']);
+    $confirm_password = trim($_POST['confirm_password']);
     
     // Generate a username from first name and last name
     $username = strtolower(substr($first_name, 0, 1) . $last_name);
@@ -46,6 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = "First name, last name and email are required fields.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_message = "Please enter a valid email address.";
+    } elseif (empty($custom_password)) {
+        $error_message = "Password is required.";
+    } elseif (strlen($custom_password) < 6) {
+        $error_message = "Password must be at least 6 characters long.";
+    } elseif ($custom_password !== $confirm_password) {
+        $error_message = "Password and confirm password do not match.";
     } elseif (!empty($years_of_experience) && !is_numeric($years_of_experience)) {
         $error_message = "Years of experience must be a number.";
     } else {
@@ -82,6 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
                 
+                // Hash the custom password
+                $hashed_password = password_hash($custom_password, PASSWORD_DEFAULT);
+                
                 // 1. Create user account with username field
                 $user_query = "INSERT INTO users (first_name, last_name, username, email, password, phone, role, created_at) 
                               VALUES (:first_name, :last_name, :username, :email, :password, :phone, 'vet', NOW())";
@@ -90,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user_stmt->bindParam(':last_name', $last_name);
                 $user_stmt->bindParam(':username', $username);
                 $user_stmt->bindParam(':email', $email);
-                $user_stmt->bindParam(':password', $password);
+                $user_stmt->bindParam(':password', $hashed_password);
                 $user_stmt->bindParam(':phone', $phone);
                 $user_stmt->execute();
                 
@@ -110,9 +121,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Commit transaction
                 $db->commit();
                 
-                $success_message = "Veterinarian added successfully! Default password: Vet@" . date('Y') . " | Username: " . $username;
+                $success_message = "Veterinarian added successfully!";
                 
-                // Clear form
+                // Clear form but keep password for display in success modal
+                $success_first_name = $first_name;
+                $success_last_name = $last_name;
+                $success_email = $email;
+                $success_username = $username;
+                $success_license_number = $license_number;
+                $success_specialization = $specialization;
+                $success_password = $custom_password; // Keep for display only
+                
+                // Clear form variables
                 $first_name = '';
                 $last_name = '';
                 $email = '';
@@ -121,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $license_number = '';
                 $years_of_experience = '';
                 $bio = '';
+                $custom_password = '';
             }
         } catch (PDOException $e) {
             // Roll back transaction on error
@@ -159,30 +180,30 @@ include_once '../includes/admin_header.php';
                             <div class="space-y-2 text-sm">
                                 <div class="flex justify-between">
                                     <span class="font-medium text-gray-700">Name:</span>
-                                    <span class="text-gray-900">Dr. <?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                                    <span class="text-gray-900">Dr. <?php echo isset($success_first_name) ? htmlspecialchars($success_first_name . ' ' . $success_last_name) : ''; ?></span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="font-medium text-gray-700">Email:</span>
-                                    <span class="text-gray-900"><?php echo htmlspecialchars($email); ?></span>
+                                    <span class="text-gray-900"><?php echo isset($success_email) ? htmlspecialchars($success_email) : ''; ?></span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="font-medium text-gray-700">Username:</span>
-                                    <span class="text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded"><?php echo htmlspecialchars($username); ?></span>
+                                    <span class="text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded"><?php echo isset($success_username) ? htmlspecialchars($success_username) : ''; ?></span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span class="font-medium text-gray-700">Default Password:</span>
-                                    <span class="text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded">Vet@<?php echo date('Y'); ?></span>
+                                    <span class="font-medium text-gray-700">Password:</span>
+                                    <span class="text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded"><?php echo isset($success_password) ? htmlspecialchars($success_password) : ''; ?></span>
                                 </div>
-                                <?php if (!empty($license_number)): ?>
+                                <?php if (isset($success_license_number) && !empty($success_license_number)): ?>
                                 <div class="flex justify-between">
                                     <span class="font-medium text-gray-700">License Number:</span>
-                                    <span class="text-gray-900"><?php echo htmlspecialchars($license_number); ?></span>
+                                    <span class="text-gray-900"><?php echo htmlspecialchars($success_license_number); ?></span>
                                 </div>
                                 <?php endif; ?>
-                                <?php if (!empty($specialization)): ?>
+                                <?php if (isset($success_specialization) && !empty($success_specialization)): ?>
                                 <div class="flex justify-between">
                                     <span class="font-medium text-gray-700">Specialization:</span>
-                                    <span class="text-gray-900"><?php echo htmlspecialchars($specialization); ?></span>
+                                    <span class="text-gray-900"><?php echo htmlspecialchars($success_specialization); ?></span>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -194,7 +215,7 @@ include_once '../includes/admin_header.php';
                             </h4>
                             <ul class="text-sm text-yellow-700 space-y-1">
                                 <li>• Please share the login credentials securely with the veterinarian</li>
-                                <li>• The veterinarian should change their password upon first login</li>
+                                <li>• The veterinarian can change their password anytime from their profile</li>
                                 <li>• They can access the system at: <span class="font-mono"><?php echo $_SERVER['HTTP_HOST']; ?>/vet/</span></li>
                                 <li>• Account role: <strong>Veterinarian</strong></li>
                             </ul>
@@ -248,6 +269,37 @@ include_once '../includes/admin_header.php';
                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 
+                <!-- Password Fields -->
+                <div>
+                    <label for="password" class="block text-gray-700 font-medium mb-2">Password *</label>
+                    <div class="relative">
+                        <input type="password" id="password" name="password" value="<?php echo htmlspecialchars($custom_password); ?>" 
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" 
+                               required minlength="6" placeholder="Enter password (min. 6 characters)">
+                        <button type="button" onclick="togglePassword('password')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="confirm_password" class="block text-gray-700 font-medium mb-2">Confirm Password *</label>
+                    <div class="relative">
+                        <input type="password" id="confirm_password" name="confirm_password" 
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" 
+                               required minlength="6" placeholder="Confirm password">
+                        <button type="button" onclick="togglePassword('confirm_password')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
                 <div>
                     <label for="license_number" class="block text-gray-700 font-medium mb-2">License Number</label>
                     <input type="text" id="license_number" name="license_number" value="<?php echo htmlspecialchars($license_number); ?>" 
@@ -277,10 +329,16 @@ include_once '../includes/admin_header.php';
             </div>
             
             <div class="border-t border-gray-200 pt-4 mt-4">
-                <p class="text-sm text-gray-600 mb-4">
-                    <strong>Note:</strong> A default password will be assigned to the new veterinarian account. 
-                    The vet will be prompted to change it upon first login.
-                </p>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <h4 class="font-semibold text-blue-800 mb-2">
+                        <i class="fas fa-info-circle mr-2"></i>Password Requirements
+                    </h4>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• Minimum 6 characters</li>
+                        <li>• Use a strong, secure password</li>
+                        <li>• The veterinarian can change this password later from their profile</li>
+                    </ul>
+                </div>
                 
                 <div class="flex items-center justify-between">
                     <a href="vets.php" class="text-blue-600 hover:text-blue-800">Cancel and return to vet list</a>
@@ -296,6 +354,28 @@ include_once '../includes/admin_header.php';
 <?php include_once '../includes/admin_footer.php'; ?>
 
 <script>
+// Toggle password visibility
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field.type === 'password') {
+        field.type = 'text';
+    } else {
+        field.type = 'password';
+    }
+}
+
+// Password confirmation validation
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (password !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
 // Modal functionality for veterinarian account creation
 document.addEventListener('DOMContentLoaded', function() {
     const vetSuccessModal = document.getElementById('vetSuccessModal');
@@ -326,18 +406,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Copy credentials to clipboard functionality
     if (copyCredentials) {
         copyCredentials.addEventListener('click', function() {
-            <?php if (!empty($success_message)): ?>
+            <?php if (!empty($success_message) && isset($success_username)): ?>
             const credentials = `Veterinarian Account Details:
-Name: Dr. <?php echo htmlspecialchars($first_name . ' ' . $last_name); ?>
-Email: <?php echo htmlspecialchars($email); ?>
-Username: <?php echo htmlspecialchars($username); ?>
-Password: Vet@<?php echo date('Y'); ?>
+Name: Dr. <?php echo isset($success_first_name) ? htmlspecialchars($success_first_name . ' ' . $success_last_name) : ''; ?>
+Email: <?php echo isset($success_email) ? htmlspecialchars($success_email) : ''; ?>
+Username: <?php echo isset($success_username) ? htmlspecialchars($success_username) : ''; ?>
+Password: <?php echo isset($success_password) ? htmlspecialchars($success_password) : ''; ?>
 Access URL: <?php echo $_SERVER['HTTP_HOST']; ?>/vet/
-<?php if (!empty($license_number)): ?>License Number: <?php echo htmlspecialchars($license_number); ?><?php endif; ?>
-<?php if (!empty($specialization)): ?>
-Specialization: <?php echo htmlspecialchars($specialization); ?><?php endif; ?>
+<?php if (isset($success_license_number) && !empty($success_license_number)): ?>License Number: <?php echo htmlspecialchars($success_license_number); ?><?php endif; ?>
+<?php if (isset($success_specialization) && !empty($success_specialization)): ?>
+Specialization: <?php echo htmlspecialchars($success_specialization); ?><?php endif; ?>
 
-Please change password upon first login.`;
+Password can be changed from profile settings.`;
             
             // Copy to clipboard
             navigator.clipboard.writeText(credentials).then(function() {

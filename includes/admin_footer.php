@@ -2,7 +2,7 @@
     <footer class="bg-gray-800 text-white py-6">
         <div class="container mx-auto px-4">
             <div class="text-center">
-                <p>&copy; <?php echo date("Y"); ?> PetCare Veterinary Clinic. All rights reserved.</p>
+                <p>&copy; <?php echo date("Y"); ?> Pawssible Solutions Veterinary Clinic. All rights reserved.</p>
                 <p class="text-sm mt-2">Admin Portal v1.0</p>
             </div>
         </div>
