@@ -2,7 +2,7 @@
 //session_start(); // Start a session for multi-turn conversations
 
 // Configuration
-$GROQ_API_KEY = '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'; // Replace with your actual API key
+$GROQ_API_KEY = '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'; // Replace with your actual API key
 $API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // Function to send a request to the Groq API

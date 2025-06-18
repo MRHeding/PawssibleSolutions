@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `appointments` (
   `id` int(11) NOT NULL,
+  `appointment_number` varchar(20) NOT NULL,
   `pet_id` int(11) NOT NULL,
   `vet_id` int(11) NOT NULL,
   `appointment_date` date NOT NULL,
@@ -44,15 +45,15 @@ CREATE TABLE `appointments` (
 -- Dumping data for table `appointments`
 --
 
-INSERT INTO `appointments` (`id`, `pet_id`, `vet_id`, `appointment_date`, `appointment_time`, `reason`, `notes`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, '2025-05-31', '10:00:00', 'Annual Check-up', 'Need to update vaccinations', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
-(2, 2, 3, '2025-06-01', '14:30:00', 'Dental Cleaning', 'Has shown signs of discomfort while eating', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
-(3, 3, 2, '2025-05-30', '09:00:00', 'Limping', 'Limping on right hind leg since yesterday', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
-(4, 4, 1, '2025-06-02', '16:00:00', 'Vaccination', 'Due for annual vaccinations', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
-(5, 5, 3, '2025-05-29', '11:30:00', 'Vomiting', 'Has been vomiting since last night', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
-(6, 1, 1, '2025-04-29', '13:00:00', 'Skin Condition', 'Itchy spots on back', 'completed', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
-(7, 2, 3, '2025-03-30', '09:30:00', 'Wellness Exam', 'Routine check-up', 'completed', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
-(8, 3, 2, '2025-04-14', '15:00:00', 'Injured Paw', 'Cut on front left paw', 'completed', '2025-05-28 23:40:41', '2025-05-28 23:40:41');
+INSERT INTO `appointments` (`id`, `appointment_number`, `pet_id`, `vet_id`, `appointment_date`, `appointment_time`, `reason`, `notes`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'A20250001', 1, 1, '2025-05-31', '10:00:00', 'Annual Check-up', 'Need to update vaccinations', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
+(2, 'A20250002', 2, 3, '2025-06-01', '14:30:00', 'Dental Cleaning', 'Has shown signs of discomfort while eating', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
+(3, 'A20250003', 3, 2, '2025-05-30', '09:00:00', 'Limping', 'Limping on right hind leg since yesterday', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
+(4, 'A20250004', 4, 1, '2025-06-02', '16:00:00', 'Vaccination', 'Due for annual vaccinations', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
+(5, 'A20250005', 5, 3, '2025-05-29', '11:30:00', 'Vomiting', 'Has been vomiting since last night', 'scheduled', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
+(6, 'A20250006', 1, 1, '2025-04-29', '13:00:00', 'Skin Condition', 'Itchy spots on back', 'completed', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
+(7, 'A20250007', 2, 3, '2025-03-30', '09:30:00', 'Wellness Exam', 'Routine check-up', 'completed', '2025-05-28 23:40:41', '2025-05-28 23:40:41'),
+(8, 'A20250008', 3, 2, '2025-04-14', '15:00:00', 'Injured Paw', 'Cut on front left paw', 'completed', '2025-05-28 23:40:41', '2025-05-28 23:40:41');
 
 -- --------------------------------------------------------
 

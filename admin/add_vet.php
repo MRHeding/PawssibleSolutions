@@ -143,8 +143,76 @@ include_once '../includes/admin_header.php';
 <div class="container mx-auto px-4 py-8">
     <div class="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
         <?php if (!empty($success_message)): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                <?php echo $success_message; ?>
+            <!-- Success Modal Popup for Veterinarian Account -->
+            <div id="vetSuccessModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                <div class="relative top-20 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white">
+                    <div class="mt-3">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mx-auto">
+                            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4 text-center">Veterinarian Account Created Successfully!</h3>
+                        
+                        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-blue-800 mb-3">Account Information</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="font-medium text-gray-700">Name:</span>
+                                    <span class="text-gray-900">Dr. <?php echo htmlspecialchars($first_name . ' ' . $last_name); ?></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-medium text-gray-700">Email:</span>
+                                    <span class="text-gray-900"><?php echo htmlspecialchars($email); ?></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-medium text-gray-700">Username:</span>
+                                    <span class="text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded"><?php echo htmlspecialchars($username); ?></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-medium text-gray-700">Default Password:</span>
+                                    <span class="text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded">Vet@<?php echo date('Y'); ?></span>
+                                </div>
+                                <?php if (!empty($license_number)): ?>
+                                <div class="flex justify-between">
+                                    <span class="font-medium text-gray-700">License Number:</span>
+                                    <span class="text-gray-900"><?php echo htmlspecialchars($license_number); ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <?php if (!empty($specialization)): ?>
+                                <div class="flex justify-between">
+                                    <span class="font-medium text-gray-700">Specialization:</span>
+                                    <span class="text-gray-900"><?php echo htmlspecialchars($specialization); ?></span>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-yellow-800 mb-2">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>Important Instructions
+                            </h4>
+                            <ul class="text-sm text-yellow-700 space-y-1">
+                                <li>• Please share the login credentials securely with the veterinarian</li>
+                                <li>• The veterinarian should change their password upon first login</li>
+                                <li>• They can access the system at: <span class="font-mono"><?php echo $_SERVER['HTTP_HOST']; ?>/vet/</span></li>
+                                <li>• Account role: <strong>Veterinarian</strong></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="items-center px-4 py-3 mt-6">
+                            <button id="closeVetSuccessModal" class="px-6 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300">
+                                <i class="fas fa-check mr-2"></i>I've Noted the Account Information
+                            </button>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <button id="copyCredentials" class="text-sm text-blue-600 hover:text-blue-800 underline">
+                                <i class="fas fa-copy mr-1"></i>Copy Credentials to Clipboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         <?php endif; ?>
         
@@ -226,3 +294,68 @@ include_once '../includes/admin_header.php';
 </div>
 
 <?php include_once '../includes/admin_footer.php'; ?>
+
+<script>
+// Modal functionality for veterinarian account creation
+document.addEventListener('DOMContentLoaded', function() {
+    const vetSuccessModal = document.getElementById('vetSuccessModal');
+    const closeVetSuccessModal = document.getElementById('closeVetSuccessModal');
+    const copyCredentials = document.getElementById('copyCredentials');
+    
+    // Close modal functionality
+    if (closeVetSuccessModal && vetSuccessModal) {
+        closeVetSuccessModal.addEventListener('click', function() {
+            vetSuccessModal.style.display = 'none';
+        });
+        
+        // Prevent closing modal by clicking outside or pressing Escape
+        // This ensures admin must manually acknowledge the information
+        vetSuccessModal.addEventListener('click', function(e) {
+            // Do not close when clicking outside - admin must click the button
+            e.stopPropagation();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            // Do not close with Escape key - admin must click the button
+            if (e.key === 'Escape') {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    // Copy credentials to clipboard functionality
+    if (copyCredentials) {
+        copyCredentials.addEventListener('click', function() {
+            <?php if (!empty($success_message)): ?>
+            const credentials = `Veterinarian Account Details:
+Name: Dr. <?php echo htmlspecialchars($first_name . ' ' . $last_name); ?>
+Email: <?php echo htmlspecialchars($email); ?>
+Username: <?php echo htmlspecialchars($username); ?>
+Password: Vet@<?php echo date('Y'); ?>
+Access URL: <?php echo $_SERVER['HTTP_HOST']; ?>/vet/
+<?php if (!empty($license_number)): ?>License Number: <?php echo htmlspecialchars($license_number); ?><?php endif; ?>
+<?php if (!empty($specialization)): ?>
+Specialization: <?php echo htmlspecialchars($specialization); ?><?php endif; ?>
+
+Please change password upon first login.`;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(credentials).then(function() {
+                // Change button text temporarily to show success
+                const originalText = copyCredentials.innerHTML;
+                copyCredentials.innerHTML = '<i class="fas fa-check mr-1"></i>Copied to Clipboard!';
+                copyCredentials.className = 'text-sm text-green-600 hover:text-green-800 underline';
+                
+                setTimeout(function() {
+                    copyCredentials.innerHTML = originalText;
+                    copyCredentials.className = 'text-sm text-blue-600 hover:text-blue-800 underline';
+                }, 2000);
+            }).catch(function(err) {
+                alert('Failed to copy credentials to clipboard. Please copy manually.');
+                console.error('Copy failed: ', err);
+            });
+            <?php endif; ?>
+        });
+    }
+});
+</script>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once 'config/database.php';
+include_once 'includes/appointment_number_generator.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -18,6 +19,9 @@ $selected_pet_id = isset($_GET['pet_id']) ? $_GET['pet_id'] : '';
 // Initialize database connection
 $database = new Database();
 $db = $database->getConnection();
+
+// Initialize appointment number generator
+$appointmentNumberGenerator = new AppointmentNumberGenerator($db);
 
 // Get user's pets for the dropdown
 $pets_query = "SELECT id, name, species FROM pets WHERE owner_id = :owner_id ORDER BY name";
@@ -76,10 +80,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($check_stmt->rowCount() > 0) {
                     $error = "The selected veterinarian is not available at the chosen time. Please select another time.";
                 } else {
+                    // Generate appointment number
+                    $appointment_number = $appointmentNumberGenerator->generateAppointmentNumber();
+                    
                     // All validations passed, create the appointment
-                    $query = "INSERT INTO appointments (pet_id, vet_id, appointment_date, appointment_time, reason, notes, status) 
-                             VALUES (:pet_id, :vet_id, :appointment_date, :appointment_time, :reason, :notes, 'scheduled')";
+                    $query = "INSERT INTO appointments (appointment_number, pet_id, vet_id, appointment_date, appointment_time, reason, notes, status) 
+                             VALUES (:appointment_number, :pet_id, :vet_id, :appointment_date, :appointment_time, :reason, :notes, 'scheduled')";
                     $stmt = $db->prepare($query);
+                    $stmt->bindParam(':appointment_number', $appointment_number);
                     $stmt->bindParam(':pet_id', $pet_id);
                     $stmt->bindParam(':vet_id', $vet_id);
                     $stmt->bindParam(':appointment_date', $appointment_date);
@@ -98,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $pet_name_stmt->execute();
                             $pet_name = $pet_name_stmt->fetch(PDO::FETCH_ASSOC)['name'];
                             
-                            $_SESSION['success_message'] = "Appointment for " . $pet_name . " scheduled successfully for " . date('F d, Y', strtotime($appointment_date)) . " at " . date('h:i A', strtotime($appointment_time)) . ".";
+                            $_SESSION['success_message'] = "Appointment #{$appointment_number} for " . $pet_name . " scheduled successfully for " . date('F d, Y', strtotime($appointment_date)) . " at " . date('h:i A', strtotime($appointment_time)) . ".";
                             header("Location: my_appointments.php");
                             exit;
                         } else {

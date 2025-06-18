@@ -88,16 +88,54 @@ include_once 'includes/header.php';
 
 <div class="container mx-auto px-4 py-8">
     <?php if (!empty($success_message)): ?>
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 notification">
-            <span class="block sm:inline"><?php echo $success_message; ?></span>
-            <button class="notification-close float-right font-semibold text-green-700">&times;</button>
+        <!-- Success Modal Popup -->
+        <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Appointment Scheduled!</h3>
+                    <div class="mt-2 px-7 py-3">
+                        <p class="text-sm text-gray-500">
+                            <?php echo $success_message; ?>
+                        </p>
+                    </div>
+                    <div class="items-center px-4 py-3">
+                        <button id="closeSuccessModal" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     <?php endif; ?>
     
     <?php if (!empty($error_message)): ?>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 notification">
-            <span class="block sm:inline"><?php echo $error_message; ?></span>
-            <button class="notification-close float-right font-semibold text-red-700">&times;</button>
+        <!-- Error Modal Popup -->
+        <div id="errorModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Error</h3>
+                    <div class="mt-2 px-7 py-3">
+                        <p class="text-sm text-gray-500">
+                            <?php echo $error_message; ?>
+                        </p>
+                    </div>
+                    <div class="items-center px-4 py-3">
+                        <button id="closeErrorModal" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     <?php endif; ?>
     
@@ -292,3 +330,56 @@ include_once 'includes/header.php';
 </div>
 
 <?php include_once 'includes/footer.php'; ?>
+
+<script>
+// Modal close functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Success modal close button
+    const closeSuccessModal = document.getElementById('closeSuccessModal');
+    const successModal = document.getElementById('successModal');
+    
+    if (closeSuccessModal && successModal) {
+        closeSuccessModal.addEventListener('click', function() {
+            successModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside of it
+        successModal.addEventListener('click', function(e) {
+            if (e.target === successModal) {
+                successModal.style.display = 'none';
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && successModal.style.display !== 'none') {
+                successModal.style.display = 'none';
+            }
+        });
+    }
+    
+    // Error modal close button
+    const closeErrorModal = document.getElementById('closeErrorModal');
+    const errorModal = document.getElementById('errorModal');
+    
+    if (closeErrorModal && errorModal) {
+        closeErrorModal.addEventListener('click', function() {
+            errorModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside of it
+        errorModal.addEventListener('click', function(e) {
+            if (e.target === errorModal) {
+                errorModal.style.display = 'none';
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && errorModal.style.display !== 'none') {
+                errorModal.style.display = 'none';
+            }
+        });
+    }
+});
+</script>

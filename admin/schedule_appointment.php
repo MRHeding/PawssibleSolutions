@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once '../config/database.php';
+include_once '../includes/appointment_number_generator.php';
 
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
@@ -11,6 +12,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 // Initialize database connection
 $database = new Database();
 $db = $database->getConnection();
+
+// Initialize appointment number generator
+$appointmentNumberGenerator = new AppointmentNumberGenerator($db);
 
 // Process form submission
 $message = '';
@@ -50,12 +54,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "There is already an appointment scheduled for this veterinarian at the selected time";
             $alert_class = "bg-red-100 text-red-700";
         } else {
+            // Generate appointment number
+            $appointment_number = $appointmentNumberGenerator->generateAppointmentNumber();
+            
             // Insert the new appointment
-            $insert_query = "INSERT INTO appointments (pet_id, vet_id, appointment_date, appointment_time, reason, notes, status, created_at) 
-                            VALUES (:pet_id, :vet_id, :appointment_date, :appointment_time, :reason, :notes, :status, NOW())";
+            $insert_query = "INSERT INTO appointments (appointment_number, pet_id, vet_id, appointment_date, appointment_time, reason, notes, status, created_at) 
+                            VALUES (:appointment_number, :pet_id, :vet_id, :appointment_date, :appointment_time, :reason, :notes, :status, NOW())";
             
             try {
                 $stmt = $db->prepare($insert_query);
+                $stmt->bindParam(':appointment_number', $appointment_number);
                 $stmt->bindParam(':pet_id', $pet_id);
                 $stmt->bindParam(':vet_id', $vet_id);
                 $stmt->bindParam(':appointment_date', $appointment_date);
@@ -65,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bindParam(':status', $status);
                 
                 if ($stmt->execute()) {
-                    $message = "Appointment scheduled successfully";
+                    $message = "Appointment #{$appointment_number} scheduled successfully";
                     $alert_class = "bg-green-100 text-green-700";
                 } else {
                     $message = "Error scheduling appointment";
