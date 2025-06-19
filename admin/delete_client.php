@@ -78,14 +78,6 @@ try {
         }
         $pet_invoices_stmt->execute();
         
-        // Delete vaccination records
-        $vac_query = "DELETE FROM vaccination_records WHERE pet_id IN ($placeholders)";
-        $vac_stmt = $db->prepare($vac_query);
-        foreach ($pet_ids as $index => $pet_id) {
-            $vac_stmt->bindValue($index + 1, $pet_id);
-        }
-        $vac_stmt->execute();
-        
         // Delete medical records
         $med_query = "DELETE FROM medical_records WHERE pet_id IN ($placeholders)";
         $med_stmt = $db->prepare($med_query);
