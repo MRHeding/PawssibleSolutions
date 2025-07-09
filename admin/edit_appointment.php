@@ -188,7 +188,7 @@ include_once '../includes/admin_header.php';
     <?php if ($appointment): ?>
         <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h2 class="text-xl font-semibold">Editing Appointment #<?php echo $appointment['id']; ?></h2>
+                <h2 class="text-xl font-semibold">Editing Appointment <?php echo htmlspecialchars($appointment['appointment_number']); ?></h2>
                 <p class="text-sm text-gray-600">
                     Created on: <?php echo date('F j, Y, g:i a', strtotime($appointment['created_at'])); ?>
                 </p>

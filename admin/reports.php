@@ -35,6 +35,35 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     exit;
 }
 
+// Data validation and debugging
+$debug_info = [];
+
+// Validate date range
+if (strtotime($date_from) > strtotime($date_to)) {
+    // Swap dates if they're in wrong order
+    $temp = $date_from;
+    $date_from = $date_to;
+    $date_to = $temp;
+    $debug_info[] = "Date range was reversed and corrected";
+}
+
+// Check if date range is too large (more than 2 years)
+$date_diff = (strtotime($date_to) - strtotime($date_from)) / (60 * 60 * 24);
+if ($date_diff > 730) {
+    $debug_info[] = "Large date range detected: {$date_diff} days";
+}
+
+// Check if dates are in the future beyond reasonable limits
+$max_future_date = date('Y-m-d', strtotime('+1 year'));
+if ($date_to > $max_future_date) {
+    $debug_info[] = "End date extends far into future: {$date_to}";
+}
+
+// Store debug info in session for admin viewing
+if (!empty($debug_info)) {
+    $_SESSION['report_debug'] = $debug_info;
+}
+
 // 1. Appointment Statistics
 $appointment_stats_query = "SELECT 
                           COUNT(*) as total,
@@ -50,26 +79,37 @@ $appt_stats_stmt->bindParam(':date_to', $date_to);
 $appt_stats_stmt->execute();
 $appointment_stats = $appt_stats_stmt->fetch(PDO::FETCH_ASSOC);
 
+// Ensure we have default values if no data found
+if (!$appointment_stats || $appointment_stats['total'] === null) {
+    $appointment_stats = [
+        'total' => 0,
+        'scheduled' => 0,
+        'completed' => 0,
+        'cancelled' => 0,
+        'no_show' => 0
+    ];
+}
+
 // 2. New Clients Report
 $new_clients_query = "SELECT COUNT(*) as count 
                     FROM users 
                     WHERE role = 'client' 
-                    AND created_at BETWEEN :date_from AND :date_to";
+                    AND DATE(created_at) BETWEEN :date_from AND :date_to";
 $new_clients_stmt = $db->prepare($new_clients_query);
 $new_clients_stmt->bindParam(':date_from', $date_from);
 $new_clients_stmt->bindParam(':date_to', $date_to);
 $new_clients_stmt->execute();
-$new_clients_count = $new_clients_stmt->fetchColumn();
+$new_clients_count = $new_clients_stmt->fetchColumn() ?: 0;
 
 // 3. New Pets Report
 $new_pets_query = "SELECT COUNT(*) as count 
                  FROM pets 
-                 WHERE created_at BETWEEN :date_from AND :date_to";
+                 WHERE DATE(created_at) BETWEEN :date_from AND :date_to";
 $new_pets_stmt = $db->prepare($new_pets_query);
 $new_pets_stmt->bindParam(':date_from', $date_from);
 $new_pets_stmt->bindParam(':date_to', $date_to);
 $new_pets_stmt->execute();
-$new_pets_count = $new_pets_stmt->fetchColumn();
+$new_pets_count = $new_pets_stmt->fetchColumn() ?: 0;
 
 // 4. Vet Workload Report
 $vet_workload_query = "SELECT 
@@ -80,12 +120,13 @@ $vet_workload_query = "SELECT
                       FROM vets v
                       JOIN users u ON v.user_id = u.id
                       LEFT JOIN appointments a ON v.id = a.vet_id AND a.appointment_date BETWEEN :date_from AND :date_to
-                      GROUP BY v.id
+                      GROUP BY v.id, u.first_name, u.last_name
                       ORDER BY total_appointments DESC";
 $vet_workload_stmt = $db->prepare($vet_workload_query);
 $vet_workload_stmt->bindParam(':date_from', $date_from);
 $vet_workload_stmt->bindParam(':date_to', $date_to);
 $vet_workload_stmt->execute();
+$vet_workload_data = $vet_workload_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // 5. Species Distribution
 $species_query = "SELECT species, COUNT(*) as count 
@@ -94,6 +135,7 @@ $species_query = "SELECT species, COUNT(*) as count
                 ORDER BY count DESC";
 $species_stmt = $db->prepare($species_query);
 $species_stmt->execute();
+$species_data = $species_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // 6. Monthly Appointment Trend for the current year
 $monthly_trend_query = "SELECT 
@@ -117,26 +159,50 @@ while ($row = $monthly_trend_stmt->fetch(PDO::FETCH_ASSOC)) {
 $today = date('Y-m-d');
 $report_of_day = [];
 
-// Appointments today
-$today_appt_query = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed, SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled, SUM(CASE WHEN status = 'no-show' THEN 1 ELSE 0 END) as no_show FROM appointments WHERE appointment_date = :today";
+// Appointments today with more detailed breakdown
+$today_appt_query = "SELECT 
+                    COUNT(*) as total, 
+                    SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed, 
+                    SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled, 
+                    SUM(CASE WHEN status = 'no-show' THEN 1 ELSE 0 END) as no_show,
+                    SUM(CASE WHEN status = 'scheduled' THEN 1 ELSE 0 END) as scheduled
+                    FROM appointments 
+                    WHERE appointment_date = :today";
 $today_appt_stmt = $db->prepare($today_appt_query);
 $today_appt_stmt->bindParam(':today', $today);
 $today_appt_stmt->execute();
-$report_of_day['appointments'] = $today_appt_stmt->fetch(PDO::FETCH_ASSOC);
+$today_appointments = $today_appt_stmt->fetch(PDO::FETCH_ASSOC);
+
+// Ensure we have default values for today's appointments
+$report_of_day['appointments'] = $today_appointments ?: [
+    'total' => 0, 'completed' => 0, 'cancelled' => 0, 'no_show' => 0, 'scheduled' => 0
+];
+
+// Fix potential null values
+foreach ($report_of_day['appointments'] as $key => $value) {
+    if ($value === null) {
+        $report_of_day['appointments'][$key] = 0;
+    }
+}
 
 // New clients today
-$today_clients_query = "SELECT COUNT(*) as count FROM users WHERE role = 'client' AND DATE(created_at) = :today";
+$today_clients_query = "SELECT COUNT(*) as count 
+                       FROM users 
+                       WHERE role = 'client' 
+                       AND DATE(created_at) = :today";
 $today_clients_stmt = $db->prepare($today_clients_query);
 $today_clients_stmt->bindParam(':today', $today);
 $today_clients_stmt->execute();
-$report_of_day['new_clients'] = $today_clients_stmt->fetchColumn();
+$report_of_day['new_clients'] = $today_clients_stmt->fetchColumn() ?: 0;
 
 // New pets today
-$today_pets_query = "SELECT COUNT(*) as count FROM pets WHERE DATE(created_at) = :today";
+$today_pets_query = "SELECT COUNT(*) as count 
+                    FROM pets 
+                    WHERE DATE(created_at) = :today";
 $today_pets_stmt = $db->prepare($today_pets_query);
 $today_pets_stmt->bindParam(':today', $today);
 $today_pets_stmt->execute();
-$report_of_day['new_pets'] = $today_pets_stmt->fetchColumn();
+$report_of_day['new_pets'] = $today_pets_stmt->fetchColumn() ?: 0;
 
 include_once '../includes/admin_header.php';
 ?>
@@ -161,6 +227,20 @@ include_once '../includes/admin_header.php';
 </div>
 
 <div class="container mx-auto px-4 py-8">
+    <!-- Debug Information (only shown if debug info exists) -->
+    <?php if (isset($_SESSION['report_debug']) && !empty($_SESSION['report_debug'])): ?>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <h3 class="text-sm font-medium text-yellow-800 mb-2">⚠️ Data Validation Notices:</h3>
+            <ul class="text-sm text-yellow-700 list-disc list-inside">
+                <?php foreach ($_SESSION['report_debug'] as $debug_msg): ?>
+                    <li><?php echo htmlspecialchars($debug_msg); ?></li>
+                <?php endforeach; ?>
+            </ul>
+            <p class="text-xs text-yellow-600 mt-2">These notices help ensure data accuracy. Please verify your date range if needed.</p>
+        </div>
+        <?php unset($_SESSION['report_debug']); ?>
+    <?php endif; ?>
+
     <!-- Enhanced Filter Form -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
         <h2 class="text-lg font-medium mb-4">Report Generator</h2>

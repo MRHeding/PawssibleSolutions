@@ -195,6 +195,7 @@ include_once 'includes/header.php';
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Appointment #</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pet</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Veterinarian</th>
@@ -206,6 +207,11 @@ include_once 'includes/header.php';
                     <tbody class="bg-white divide-y divide-gray-200">
                         <?php while ($appointment = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
                             <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        <?php echo htmlspecialchars($appointment['appointment_number']); ?>
+                                    </div>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">
                                         <?php echo date('M d, Y', strtotime($appointment['appointment_date'])); ?>

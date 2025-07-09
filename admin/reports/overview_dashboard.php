@@ -32,10 +32,16 @@
         </div>
         <div class="text-center bg-orange-50 p-6 rounded-lg">
             <div class="text-4xl font-bold text-orange-600 mb-2">
-                <?php echo $appointment_stats['total'] > 0 ? number_format(($appointment_stats['completed'] / $appointment_stats['total']) * 100, 1) : 0; ?>%
+                <?php 
+                $completion_rate = ($appointment_stats['total'] > 0 && $appointment_stats['completed'] !== null) ? 
+                    number_format(($appointment_stats['completed'] / $appointment_stats['total']) * 100, 1) : 0; 
+                echo $completion_rate;
+                ?>%
             </div>
             <div class="text-sm text-gray-600 font-medium">Completion Rate</div>
-            <div class="text-xs text-gray-500 mt-1">appointments completed</div>
+            <div class="text-xs text-gray-500 mt-1">
+                <?php echo $appointment_stats['completed']; ?> of <?php echo $appointment_stats['total']; ?> completed
+            </div>
         </div>
     </div>
 </div>
@@ -108,11 +114,9 @@
         <div class="space-y-3">
             <?php 
             $total_pets = 0;
-            $species_data = [];
-            $species_stmt->execute(); // Re-execute for display
-            while ($row = $species_stmt->fetch(PDO::FETCH_ASSOC)) {
-                $total_pets += $row['count'];
-                $species_data[] = $row;
+            // Use the already fetched species data
+            foreach ($species_data as $data) {
+                $total_pets += $data['count'];
             }
             
             foreach ($species_data as $data): 
@@ -156,10 +160,13 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 <?php 
-                $vet_workload_stmt->execute(); // Re-execute for display
-                while ($vet = $vet_workload_stmt->fetch(PDO::FETCH_ASSOC)): 
-                    $completion_rate = $vet['total_appointments'] > 0 ? 
-                        ($vet['completed_appointments'] / $vet['total_appointments']) * 100 : 0;
+                // Use the already fetched vet workload data
+                foreach ($vet_workload_data as $vet): 
+                    // Ensure we have valid numeric values
+                    $total_appointments = intval($vet['total_appointments']);
+                    $completed_appointments = intval($vet['completed_appointments']);
+                    $completion_rate = $total_appointments > 0 ? 
+                        ($completed_appointments / $total_appointments) * 100 : 0;
                 ?>
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -175,10 +182,10 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900"><?php echo $vet['total_appointments']; ?></div>
+                            <div class="text-sm text-gray-900"><?php echo $total_appointments; ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900"><?php echo $vet['completed_appointments']; ?></div>
+                            <div class="text-sm text-gray-900"><?php echo $completed_appointments; ?></div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900"><?php echo number_format($completion_rate, 1); ?>%</div>
@@ -187,11 +194,12 @@
                             <div class="flex items-center">
                                 <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
                                     <div class="h-2 rounded-full <?php echo $completion_rate >= 90 ? 'bg-green-600' : ($completion_rate >= 70 ? 'bg-yellow-600' : 'bg-red-600'); ?>" 
-                                         style="width: <?php echo $completion_rate; ?>%"></div>
+                                         style="width: <?php echo min($completion_rate, 100); ?>%"></div>
                                 </div>
                                 <span class="text-xs text-gray-500">
                                     <?php 
-                                    if ($completion_rate >= 90) echo 'Excellent';
+                                    if ($total_appointments == 0) echo 'No Data';
+                                    elseif ($completion_rate >= 90) echo 'Excellent';
                                     elseif ($completion_rate >= 70) echo 'Good';
                                     else echo 'Needs Improvement';
                                     ?>
@@ -199,7 +207,7 @@
                             </div>
                         </td>
                     </tr>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>

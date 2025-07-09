@@ -99,7 +99,7 @@ $output = fopen('php://output', 'w');
 
 // CSV column headers
 $headers = [
-    'Appointment ID',
+    'Appointment Number',
     'Date',
     'Time',
     'Pet Name',
@@ -120,7 +120,7 @@ fputcsv($output, $headers);
 // Write data rows
 while ($appointment = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $row = [
-        $appointment['id'],
+        $appointment['appointment_number'],
         date('Y-m-d', strtotime($appointment['appointment_date'])),
         date('H:i', strtotime($appointment['appointment_time'])),
         $appointment['pet_name'],
