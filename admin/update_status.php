@@ -46,16 +46,19 @@ if (isset($requestData['appointment_id']) || isset($requestData['id'])) {
         $status = trim($requestData['status']);
         $admin_notes = isset($requestData['admin_notes']) ? trim($requestData['admin_notes']) : '';
         
-        // Validate status value
-        $valid_statuses = ['pending', 'confirmed', 'completed', 'canceled', 'no-show'];
+        // Validate status value - must match database enum exactly
+        $valid_statuses = ['scheduled', 'completed', 'cancelled', 'no-show'];
         if (in_array($status, $valid_statuses)) {
-            // Check if appointment exists
-            $check_query = "SELECT id FROM appointments WHERE id = :appointment_id";
+            // Check if appointment exists and get current status
+            $check_query = "SELECT id, status FROM appointments WHERE id = :appointment_id";
             $check_stmt = $db->prepare($check_query);
             $check_stmt->bindParam(':appointment_id', $appointment_id);
             $check_stmt->execute();
             
             if ($check_stmt->rowCount() > 0) {
+                $current_appointment = $check_stmt->fetch(PDO::FETCH_ASSOC);
+                $old_status = $current_appointment['status'];
+                
                 // Update appointment status - handle admin_notes conditionally
                 if ($adminNotesExists && !empty($admin_notes)) {
                     $update_query = "UPDATE appointments SET 
@@ -97,12 +100,23 @@ if (isset($requestData['appointment_id']) || isset($requestData['id'])) {
                         }
                         
                         $success = true;
-                        $message = 'Appointment status updated successfully';
+                        $message = "Appointment status updated successfully from '$old_status' to '$status'";
+                        
+                        // Set session message for non-AJAX requests
+                        if (!$isAjaxRequest) {
+                            $_SESSION['success_message'] = $message;
+                        }
                     } else {
                         $message = 'Failed to update appointment status';
+                        if (!$isAjaxRequest) {
+                            $_SESSION['error_message'] = $message;
+                        }
                     }
                 } catch (PDOException $e) {
                     $message = 'Database error: ' . $e->getMessage();
+                    if (!$isAjaxRequest) {
+                        $_SESSION['error_message'] = $message;
+                    }
                 }
             } else {
                 $message = 'Appointment not found';
@@ -134,9 +148,9 @@ if ($isAjaxRequest) {
     
     // Redirect to appointment view or list
     if (isset($appointment_id)) {
-        header("Location: view_appointment.php?id=$appointment_id");
+        header("Location: view_appointment.php?id=$appointment_id&updated=" . time());
     } else {
-        header("Location: appointments.php");
+        header("Location: appointments.php?updated=" . time());
     }
     exit;
 }

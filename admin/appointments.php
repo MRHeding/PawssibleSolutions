@@ -2,6 +2,11 @@
 session_start();
 include_once '../config/database.php';
 
+// Add cache-busting headers
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
@@ -39,12 +44,14 @@ $vets = $vets_stmt->fetchAll(PDO::FETCH_ASSOC);
 // Build the appointments query
 $query = "SELECT a.*, p.name as pet_name, p.species, 
          CONCAT(o.first_name, ' ', o.last_name) as owner_name,
-         CONCAT(v.first_name, ' ', v.last_name) as vet_name 
+         CONCAT(v.first_name, ' ', v.last_name) as vet_name,
+         mr.id as medical_record_id
          FROM appointments a 
          JOIN pets p ON a.pet_id = p.id 
          JOIN users o ON p.owner_id = o.id
          JOIN vets vt ON a.vet_id = vt.id 
-         JOIN users v ON vt.user_id = v.id";
+         JOIN users v ON vt.user_id = v.id
+         LEFT JOIN medical_records mr ON a.id = mr.appointment_id";
 
 // Add filters
 if (!empty($status_filter)) {
@@ -112,6 +119,24 @@ include_once '../includes/admin_header.php';
 </div>
 
 <div class="container mx-auto px-4 py-8">
+    <?php if (isset($_SESSION['success_message'])): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <?php 
+            echo htmlspecialchars($_SESSION['success_message']);
+            unset($_SESSION['success_message']);
+            ?>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error_message'])): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <?php 
+            echo htmlspecialchars($_SESSION['error_message']);
+            unset($_SESSION['error_message']);
+            ?>
+        </div>
+    <?php endif; ?>
+    
     <!-- Filter Section -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
         <h3 class="text-lg font-semibold mb-4">Filter Appointments</h3>
@@ -222,7 +247,7 @@ include_once '../includes/admin_header.php';
                                                 echo 'bg-red-100 text-red-800';
                                                 break;
                                             case 'no-show':
-                                                echo 'bg-yellow-100 text-yellow-800';
+                                                echo 'bg-orange-100 text-orange-800';
                                                 break;
                                             default:
                                                 echo 'bg-gray-100 text-gray-800';
@@ -230,6 +255,14 @@ include_once '../includes/admin_header.php';
                                         ?>">
                                         <?php echo ucfirst($appointment['status']); ?>
                                     </span>
+                                    <?php if ($appointment['status'] === 'completed' && !empty($appointment['medical_record_id'])): ?>
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <i class="fas fa-file-medical mr-1"></i>
+                                                Record Added
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
@@ -242,21 +275,32 @@ include_once '../includes/admin_header.php';
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             
-                                            <a href="update_status.php?id=<?php echo $appointment['id']; ?>&status=completed" class="text-green-600 hover:text-green-900" title="Mark as Completed">
+                                            <a href="update_status.php?id=<?php echo $appointment['id']; ?>&status=completed" class="text-green-600 hover:text-green-900" title="Mark as Completed" onclick="return confirm('Are you sure you want to mark this appointment as completed?');">
                                                 <i class="fas fa-check"></i>
                                             </a>
                                             
-                                            <a href="update_status.php?id=<?php echo $appointment['id']; ?>&status=no-show" class="text-yellow-600 hover:text-yellow-900" title="Mark as No-Show">
+                                            <a href="update_status.php?id=<?php echo $appointment['id']; ?>&status=no-show" class="text-yellow-600 hover:text-yellow-900" title="Mark as No-Show" onclick="return confirm('Are you sure you want to mark this appointment as no-show?');">
                                                 <i class="fas fa-user-times"></i>
                                             </a>
                                             
-                                            <a href="update_status.php?id=<?php echo $appointment['id']; ?>&status=cancelled" class="text-red-600 hover:text-red-900" title="Cancel">
+                                            <a href="update_status.php?id=<?php echo $appointment['id']; ?>&status=cancelled" class="text-red-600 hover:text-red-900" title="Cancel" onclick="return confirm('Are you sure you want to cancel this appointment?');">
                                                 <i class="fas fa-times"></i>
                                             </a>
                                         <?php elseif ($appointment['status'] === 'completed'): ?>
-                                            <a href="add_medical_record.php?appointment_id=<?php echo $appointment['id']; ?>" class="text-green-600 hover:text-green-900" title="Add/Edit Medical Record">
-                                                <i class="fas fa-file-medical"></i>
-                                            </a>
+                                            <?php if (empty($appointment['medical_record_id'])): ?>
+                                                <!-- No medical record exists yet -->
+                                                <a href="add_medical_record.php?appointment_id=<?php echo $appointment['id']; ?>" class="text-green-600 hover:text-green-900" title="Add Medical Record">
+                                                    <i class="fas fa-file-medical"></i>
+                                                </a>
+                                            <?php else: ?>
+                                                <!-- Medical record already exists -->
+                                                <a href="../view_medical_record.php?id=<?php echo $appointment['medical_record_id']; ?>" class="text-blue-600 hover:text-blue-900" title="View Medical Record">
+                                                    <i class="fas fa-file-medical-alt"></i>
+                                                </a>
+                                                <span class="text-gray-400 ml-2" title="Medical record already exists for this appointment">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </span>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                         
                                         <?php if ($user_role === 'admin'): ?>

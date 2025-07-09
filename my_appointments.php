@@ -2,6 +2,11 @@
 session_start();
 include_once 'config/database.php';
 
+// Add cache-busting headers to ensure fresh appointment status
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -237,7 +242,7 @@ include_once 'includes/header.php';
                                                 echo 'bg-red-100 text-red-800';
                                                 break;
                                             case 'no-show':
-                                                echo 'bg-yellow-100 text-yellow-800';
+                                                echo 'bg-orange-100 text-orange-800';
                                                 break;
                                             default:
                                                 echo 'bg-gray-100 text-gray-800';

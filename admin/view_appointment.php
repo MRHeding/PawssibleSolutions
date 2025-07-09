@@ -161,10 +161,9 @@ include_once '../includes/admin_header.php';
                     <div class="mb-4">
                         <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Status</label>
                         <select name="status" id="status" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="pending" <?php echo ($appointment['status'] === 'pending') ? 'selected' : ''; ?>>Pending</option>
-                            <option value="confirmed" <?php echo ($appointment['status'] === 'confirmed') ? 'selected' : ''; ?>>Confirmed</option>
+                            <option value="scheduled" <?php echo ($appointment['status'] === 'scheduled') ? 'selected' : ''; ?>>Scheduled</option>
                             <option value="completed" <?php echo ($appointment['status'] === 'completed') ? 'selected' : ''; ?>>Completed</option>
-                            <option value="canceled" <?php echo ($appointment['status'] === 'canceled') ? 'selected' : ''; ?>>Canceled</option>
+                            <option value="cancelled" <?php echo ($appointment['status'] === 'cancelled') ? 'selected' : ''; ?>>Cancelled</option>
                             <option value="no-show" <?php echo ($appointment['status'] === 'no-show') ? 'selected' : ''; ?>>No Show</option>
                         </select>
                     </div>

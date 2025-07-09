@@ -10,15 +10,73 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 
 // Initialize variables
 $pet_id = isset($_GET['pet_id']) ? intval($_GET['pet_id']) : 0;
+$appointment_id = isset($_GET['appointment_id']) ? intval($_GET['appointment_id']) : 0;
 $message = '';
 $messageClass = '';
 $pets = [];
+$appointment_info = null;
 
 // Initialize database connection
 $database = new Database();
 $db = $database->getConnection();
 
-// Get list of pets for dropdown if pet_id is not provided
+// If appointment_id is provided, get pet information from the appointment
+if (!empty($appointment_id)) {
+    $appointment_query = "SELECT a.id as appointment_id, a.appointment_date, a.reason,
+                         p.id as id, p.name as pet_name, p.species, p.breed, 
+                         u.first_name, u.last_name, u.id as owner_id
+                         FROM appointments a
+                         JOIN pets p ON a.pet_id = p.id 
+                         JOIN users u ON p.owner_id = u.id 
+                         WHERE a.id = :appointment_id";
+    $appointment_stmt = $db->prepare($appointment_query);
+    $appointment_stmt->bindParam(':appointment_id', $appointment_id);
+    $appointment_stmt->execute();
+    
+    if ($appointment_stmt->rowCount() > 0) {
+        $appointment_info = $appointment_stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Check if a medical record already exists for this appointment
+        $existing_record_query = "SELECT id FROM medical_records WHERE appointment_id = :appointment_id";
+        $existing_record_stmt = $db->prepare($existing_record_query);
+        $existing_record_stmt->bindParam(':appointment_id', $appointment_id);
+        $existing_record_stmt->execute();
+        
+        if ($existing_record_stmt->rowCount() > 0) {
+            // Medical record already exists, redirect to view it
+            $existing_record = $existing_record_stmt->fetch(PDO::FETCH_ASSOC);
+            $_SESSION['info_message'] = "A medical record already exists for this appointment. You can view it below.";
+            header("Location: ../view_medical_record.php?id=" . $existing_record['id']);
+            exit;
+        }
+        
+        $pet_id = $appointment_info['id']; // Set pet_id from appointment
+        $pet = $appointment_info; // Use appointment info as pet info
+        
+        // Ensure consistent field structure for the pet data
+        $pet['pet_id'] = $pet['id']; // Add pet_id field for consistency
+        if (!isset($pet['name']) && isset($pet['pet_name'])) {
+            $pet['name'] = $pet['pet_name']; // Add name field for consistency
+        }
+    } else {
+        $message = "Appointment not found";
+        $messageClass = "bg-red-100 border-red-400 text-red-700";
+        $appointment_id = 0; // Reset appointment_id since it's invalid
+    }
+}
+
+// Debug: Show data structure when appointment_id is provided
+if (!empty($appointment_id) && isset($appointment_info)) {
+    // Ensure consistent field names for the pet data
+    if (isset($appointment_info['id']) && !isset($appointment_info['pet_id'])) {
+        $appointment_info['pet_id'] = $appointment_info['id'];
+    }
+    if (!isset($appointment_info['name']) && isset($appointment_info['pet_name'])) {
+        $appointment_info['name'] = $appointment_info['pet_name'];
+    }
+}
+
+// Get list of pets for dropdown if neither pet_id nor appointment_id is provided, or if they're invalid
 if (empty($pet_id)) {
     $pets_query = "SELECT p.id, p.name, p.species, p.breed, u.first_name, u.last_name 
                   FROM pets p 
@@ -27,8 +85,8 @@ if (empty($pet_id)) {
     $pets_stmt = $db->prepare($pets_query);
     $pets_stmt->execute();
     $pets = $pets_stmt->fetchAll(PDO::FETCH_ASSOC);
-} else {
-    // Get pet details if pet_id is provided
+} elseif (empty($appointment_info)) {
+    // Get pet details if pet_id is provided directly (not from appointment)
     $pet_query = "SELECT p.id, p.name, p.species, p.breed, u.first_name, u.last_name, u.id as owner_id
                  FROM pets p 
                  JOIN users u ON p.owner_id = u.id 
@@ -60,6 +118,7 @@ if (empty($pet_id)) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_record'])) {
     // Get form data
     $pet_id_form = intval($_POST['pet_id']);
+    $appointment_id_form = isset($_POST['appointment_id']) ? intval($_POST['appointment_id']) : 0;
     $record_date = $_POST['record_date'];
     $record_type = $_POST['record_type'];
     $diagnosis = $_POST['diagnosis'] ?? '';
@@ -158,6 +217,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_record'])) {
                 $params[':created_by'] = $_SESSION['user_id']; // The current logged-in admin
             }
             
+            // Handle appointment_id field if it exists and we have an appointment
+            if (in_array('appointment_id', $columns) && !empty($appointment_id_form)) {
+                $fields[] = 'appointment_id';
+                $placeholders[] = ':appointment_id';
+                $params[':appointment_id'] = $appointment_id_form;
+            }
+            
             // Always add created_at
             if (in_array('created_at', $columns)) {
                 $fields[] = 'created_at';
@@ -180,11 +246,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_record'])) {
                 $message = "Medical record added successfully";
                 $messageClass = "bg-green-100 border-green-400 text-green-700";
                 
-                // Redirect to view the newly created record if view page exists
-                $check_file = file_exists('../admin/view_medical_record.php');
-                if ($check_file) {
-                    header("Location: view_medical_record.php?id=" . $record_id);
+                // Redirect based on where we came from
+                if (!empty($appointment_id_form)) {
+                    // Go back to appointment view if we came from an appointment
+                    header("Location: view_appointment.php?id=" . $appointment_id_form);
                     exit;
+                } else {
+                    // Redirect to view the newly created record if view page exists
+                    $check_file = file_exists('../view_medical_record.php');
+                    if ($check_file) {
+                        header("Location: ../view_medical_record.php?id=" . $record_id);
+                        exit;
+                    }
                 }
             } else {
                 $message = "Error adding medical record";
@@ -226,9 +299,16 @@ include_once '../includes/admin_header.php';
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Add Medical Record</h1>
-        <a href="medical_records.php" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
-            Back to All Records
-        </a>
+        <div class="flex gap-2">
+            <?php if (!empty($appointment_id)): ?>
+                <a href="view_appointment.php?id=<?php echo $appointment_id; ?>" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                    View Appointment
+                </a>
+            <?php endif; ?>
+            <a href="medical_records.php" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
+                Back to All Records
+            </a>
+        </div>
     </div>
     
     <?php if (!empty($message)): ?>
@@ -237,6 +317,40 @@ include_once '../includes/admin_header.php';
         </div>
     <?php endif; ?>
     
+    <?php if (!empty($appointment_info)): ?>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold text-blue-800 mb-2">
+                <i class="fas fa-calendar-check mr-2"></i>Appointment Information
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <span class="font-medium text-blue-700">Appointment Date:</span>
+                    <p><?php echo date('M d, Y', strtotime($appointment_info['appointment_date'])); ?></p>
+                </div>
+                <div>
+                    <span class="font-medium text-blue-700">Pet:</span>
+                    <p><?php echo htmlspecialchars($appointment_info['pet_name']); ?> (<?php echo htmlspecialchars($appointment_info['species']); ?>)</p>
+                </div>
+                <div>
+                    <span class="font-medium text-blue-700">Reason for Visit:</span>
+                    <p><?php echo htmlspecialchars($appointment_info['reason']); ?></p>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+    
+    <!-- Policy Information -->
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <h3 class="text-sm font-semibold text-yellow-800 mb-2">
+            <i class="fas fa-info-circle mr-2"></i>Medical Record Policy
+        </h3>
+        <p class="text-sm text-yellow-700">
+            Each appointment can only have one medical record. Once a medical record is created for an appointment, 
+            you cannot create another one for the same appointment. To add additional medical information, 
+            schedule a new appointment or edit the existing medical record.
+        </p>
+    </div>
+    
     <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
         <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
             <h2 class="text-xl font-semibold">New Medical Record</h2>
@@ -244,28 +358,47 @@ include_once '../includes/admin_header.php';
         
         <div class="p-6">
             <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                <?php if (!empty($appointment_id)): ?>
+                    <input type="hidden" name="appointment_id" value="<?php echo $appointment_id; ?>">
+                <?php endif; ?>
+                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h3 class="text-lg font-semibold mb-3 text-violet-700">Basic Information</h3>
                         
                         <div class="mb-4">
                             <label for="pet_id" class="block text-gray-700 text-sm font-bold mb-2">Pet</label>
-                            <select name="pet_id" id="pet_id" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                            <select name="pet_id" id="pet_id" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required <?php echo !empty($appointment_info) ? 'readonly style="background-color: #f9f9f9;"' : ''; ?>>
                                 <option value="">Select Pet</option>
                                 <?php if (!empty($pet_id) && isset($pet)): ?>
                                     <option value="<?php echo $pet['id']; ?>" selected>
-                                        <?php echo htmlspecialchars($pet['name']); ?> (<?php echo htmlspecialchars($pet['species'] . ' - ' . $pet['breed']); ?>) - 
+                                        <?php echo htmlspecialchars($pet['pet_name'] ?? $pet['name']); ?> (<?php echo htmlspecialchars($pet['species'] . ' - ' . $pet['breed']); ?>) - 
                                         Owner: <?php echo htmlspecialchars($pet['first_name'] . ' ' . $pet['last_name']); ?>
                                     </option>
+                                    <?php if (empty($appointment_info)): ?>
+                                        <?php foreach ($pets as $other_pet): ?>
+                                            <?php if ($other_pet['id'] != $pet['id']): ?>
+                                                <option value="<?php echo $other_pet['id']; ?>">
+                                                    <?php echo htmlspecialchars($other_pet['name']); ?> (<?php echo htmlspecialchars($other_pet['species'] . ' - ' . $other_pet['breed']); ?>) - 
+                                                    Owner: <?php echo htmlspecialchars($other_pet['first_name'] . ' ' . $other_pet['last_name']); ?>
+                                                </option>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 <?php else: ?>
-                                    <?php foreach ($pets as $pet): ?>
-                                        <option value="<?php echo $pet['id']; ?>">
-                                            <?php echo htmlspecialchars($pet['name']); ?> (<?php echo htmlspecialchars($pet['species'] . ' - ' . $pet['breed']); ?>) - 
-                                            Owner: <?php echo htmlspecialchars($pet['first_name'] . ' ' . $pet['last_name']); ?>
+                                    <?php foreach ($pets as $pet_option): ?>
+                                        <option value="<?php echo $pet_option['id']; ?>">
+                                            <?php echo htmlspecialchars($pet_option['name']); ?> (<?php echo htmlspecialchars($pet_option['species'] . ' - ' . $pet_option['breed']); ?>) - 
+                                            Owner: <?php echo htmlspecialchars($pet_option['first_name'] . ' ' . $pet_option['last_name']); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
+                            <?php if (!empty($appointment_info)): ?>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    <i class="fas fa-info-circle mr-1"></i>Pet is automatically selected from the appointment
+                                </p>
+                            <?php endif; ?>
                         </div>
                         
                         <div class="mb-4">
@@ -295,7 +428,12 @@ include_once '../includes/admin_header.php';
                         
                         <div class="mb-4">
                             <label for="diagnosis" class="block text-gray-700 text-sm font-bold mb-2">Diagnosis</label>
-                            <textarea name="diagnosis" id="diagnosis" rows="2" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                            <textarea name="diagnosis" id="diagnosis" rows="2" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><?php echo !empty($appointment_info['reason']) ? 'Related to: ' . htmlspecialchars($appointment_info['reason']) : ''; ?></textarea>
+                            <?php if (!empty($appointment_info['reason'])): ?>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    <i class="fas fa-info-circle mr-1"></i>Pre-filled with appointment reason. You can modify as needed.
+                                </p>
+                            <?php endif; ?>
                         </div>
                         
                         <div class="mb-4">
