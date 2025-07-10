@@ -75,7 +75,7 @@ if (!empty($search)) {
 }
 
 // Add sorting
-$query .= " ORDER BY a.appointment_date DESC, a.appointment_time ASC";
+$query .= " ORDER BY a.appointment_date DESC, a.appointment_time DESC, a.created_at DESC";
 
 // Prepare and execute the query
 $stmt = $db->prepare($query);

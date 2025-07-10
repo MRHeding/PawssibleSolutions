@@ -58,7 +58,7 @@ if (!empty($date_filter)) {
     $query .= " AND a.appointment_date = :date";
 }
 
-$query .= " ORDER BY a.appointment_date DESC, a.appointment_time ASC";
+$query .= " ORDER BY a.appointment_date DESC, a.appointment_time DESC, a.created_at DESC";
 
 $stmt = $db->prepare($query);
 $stmt->bindParam(':user_id', $user_id);

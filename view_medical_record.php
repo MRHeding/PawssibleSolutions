@@ -9,6 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$user_role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'client';
 
 // Check if record ID is provided
 if (!isset($_GET['id']) || empty($_GET['id'])) {
@@ -22,20 +23,38 @@ $record_id = $_GET['id'];
 $database = new Database();
 $db = $database->getConnection();
 
-// Get medical record details, ensuring it belongs to one of the user's pets
-$query = "SELECT mr.*, p.name as pet_name, p.species, p.breed, p.gender, p.date_of_birth,
-          a.appointment_date, a.appointment_time, a.reason as appointment_reason,
-          CONCAT(u.first_name, ' ', u.last_name) as vet_name
-          FROM medical_records mr
-          JOIN pets p ON mr.pet_id = p.id
-          LEFT JOIN appointments a ON mr.appointment_id = a.id
-          LEFT JOIN vets v ON a.vet_id = v.id
-          LEFT JOIN users u ON v.user_id = u.id
-          WHERE mr.id = :record_id AND p.owner_id = :owner_id";
+// Build query based on user role
+if ($user_role == 'client') {
+    // Client can only view their own pets' medical records
+    $query = "SELECT mr.*, p.name as pet_name, p.species, p.breed, p.gender, p.date_of_birth,
+              a.appointment_date, a.appointment_time, a.reason as appointment_reason,
+              CONCAT(u.first_name, ' ', u.last_name) as vet_name
+              FROM medical_records mr
+              JOIN pets p ON mr.pet_id = p.id
+              LEFT JOIN appointments a ON mr.appointment_id = a.id
+              LEFT JOIN users u ON mr.created_by = u.id
+              WHERE mr.id = :record_id AND p.owner_id = :owner_id";
+} else {
+    // Admin/vet can view all medical records
+    $query = "SELECT mr.*, p.name as pet_name, p.species, p.breed, p.gender, p.date_of_birth,
+              CONCAT(o.first_name, ' ', o.last_name) as owner_name,
+              a.appointment_date, a.appointment_time, a.reason as appointment_reason,
+              CONCAT(u.first_name, ' ', u.last_name) as vet_name
+              FROM medical_records mr
+              JOIN pets p ON mr.pet_id = p.id
+              JOIN users o ON p.owner_id = o.id
+              LEFT JOIN appointments a ON mr.appointment_id = a.id
+              LEFT JOIN users u ON mr.created_by = u.id
+              WHERE mr.id = :record_id";
+}
           
 $stmt = $db->prepare($query);
 $stmt->bindParam(':record_id', $record_id);
-$stmt->bindParam(':owner_id', $user_id);
+
+// Only bind owner_id parameter for clients
+if ($user_role == 'client') {
+    $stmt->bindParam(':owner_id', $user_id);
+}
 $stmt->execute();
 
 // Check if record exists and belongs to the user
@@ -46,10 +65,15 @@ if ($stmt->rowCount() == 0) {
 
 $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
-include_once 'includes/header.php';
+// Include appropriate header based on user role
+if ($user_role == 'admin') {
+    include_once 'includes/admin_header.php';
+} else {
+    include_once 'includes/header.php';
+}
 ?>
 
-<div class="bg-gradient-to-r from-blue-500 to-teal-400 py-10">
+<div class="bg-gradient-to-r from-violet-600 to-violet-700 py-10">
     <div class="container mx-auto px-4">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-bold text-white">Medical Record</h1>
@@ -75,6 +99,11 @@ include_once 'includes/header.php';
                     <p class="text-gray-600 mt-1">
                         <?php echo date('F d, Y', strtotime($record['record_date'])); ?>
                     </p>
+                    <?php if (isset($record['owner_name']) && $user_role != 'client'): ?>
+                    <p class="text-gray-600 mt-1">
+                        <span class="font-medium">Owner:</span> <?php echo htmlspecialchars($record['owner_name']); ?>
+                    </p>
+                    <?php endif; ?>
                 </div>
                 
                 <?php if (!empty($record['vet_name'])): ?>
@@ -159,4 +188,11 @@ include_once 'includes/header.php';
     </div>
 </div>
 
-<?php include_once 'includes/footer.php'; ?>
+<?php 
+// Include appropriate footer based on user role
+if ($user_role == 'admin') {
+    include_once 'includes/admin_footer.php';
+} else {
+    include_once 'includes/footer.php';
+}
+?>

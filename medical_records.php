@@ -112,7 +112,12 @@ if (!empty($search)) {
 
 $stmt->execute();
 
-include_once 'includes/header.php';
+// Include appropriate header based on user role
+if ($user_role == 'admin') {
+    include_once 'includes/admin_header.php';
+} else {
+    include_once 'includes/header.php';
+}
 ?>
 
 <div class="bg-gradient-to-r from-violet-600 to-violet-700 py-10">
@@ -215,7 +220,9 @@ include_once 'includes/header.php';
                         </div>
                         
                         <div class="flex justify-between items-center mt-4 pt-2 border-t border-gray-100">
-                            <small class="text-gray-500">By Dr. <?php echo htmlspecialchars($record['vet_name']); ?></small>
+                            <small class="text-gray-500">
+                                By Dr. <?php echo !empty($record['vet_name']) ? htmlspecialchars($record['vet_name']) : 'Unknown'; ?>
+                            </small>
                             <a href="view_medical_record.php?id=<?php echo $record['id']; ?>" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
                                 View Details
                             </a>
@@ -241,4 +248,11 @@ include_once 'includes/header.php';
     <?php endif; ?>
 </div>
 
-<?php include_once 'includes/footer.php'; ?>
+<?php 
+// Include appropriate footer based on user role
+if ($user_role == 'admin') {
+    include_once 'includes/admin_footer.php';
+} else {
+    include_once 'includes/footer.php';
+}
+?>
