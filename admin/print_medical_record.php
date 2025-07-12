@@ -53,6 +53,8 @@ if (!$record) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medical Record - <?php echo htmlspecialchars($record['pet_name']); ?></title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/images/logo.png">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         @media print {

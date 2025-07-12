@@ -407,17 +407,16 @@ include_once '../includes/admin_header.php';
                         </div>
                         
                         <div class="mb-4">
-                            <label for="record_type" class="block text-gray-700 text-sm font-bold mb-2">Record Type</label>
+                            <label for="record_type" class="block text-gray-700 text-sm font-bold mb-2">Reason for Visit *</label>
                             <select name="record_type" id="record_type" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-                                <option value="">Select Type</option>
-                                <option value="Check-up">Check-up</option>
+                                <option value="">Select reason</option>
+                                <option value="Wellness Exam">Wellness Exam</option>
                                 <option value="Vaccination">Vaccination</option>
-                                <option value="Surgery">Surgery</option>
-                                <option value="Emergency">Emergency</option>
-                                <option value="Dental">Dental</option>
-                                <option value="Laboratory">Laboratory Test</option>
-                                <option value="Imaging">Imaging (X-Ray/Ultrasound)</option>
-                                <option value="Prescription">Prescription</option>
+                                <option value="Sick Visit">Sick Visit</option>
+                                <option value="Injury">Injury</option>
+                                <option value="Dental Care">Dental Care</option>
+                                <option value="Surgery Consultation">Surgery Consultation</option>
+                                <option value="Follow-up Visit">Follow-up Visit</option>
                                 <option value="Other">Other</option>
                             </select>
                         </div>

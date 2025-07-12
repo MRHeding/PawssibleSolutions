@@ -94,23 +94,57 @@ include_once 'includes/header.php';
 <div class="container mx-auto px-4 py-8">
     <?php if (!empty($success_message)): ?>
         <!-- Success Modal Popup -->
-        <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                <div class="mt-3 text-center">
-                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <div id="successModal" class="fixed inset-0 bg-black bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+            <div class="relative mx-auto p-8 border-2 border-green-400 w-11/12 max-w-lg shadow-2xl rounded-xl bg-white transform transition-all duration-300 scale-105">
+                <div class="text-center">
+                    <!-- Logo -->
+                    <div class="mb-6">
+                        <img src="assets/images/logo.png" alt="PawssibleSolutions" class="mx-auto h-20 w-auto">
+                    </div>
+                    
+                    <!-- Success Icon -->
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Appointment Scheduled!</h3>
-                    <div class="mt-2 px-7 py-3">
-                        <p class="text-sm text-gray-500">
-                            <?php echo $success_message; ?>
+                    
+                    <!-- Title -->
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Appointment Scheduled Successfully!</h3>
+                    
+                    <!-- Message with highlighted appointment number -->
+                    <div class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                        <?php 
+                        // Extract appointment number from success message
+                        preg_match('/Appointment #(A\d+)/', $success_message, $matches);
+                        $appointment_number = isset($matches[1]) ? $matches[1] : '';
+                        
+                        if ($appointment_number) {
+                            $message_without_number = str_replace("Appointment #{$appointment_number}", '', $success_message);
+                        } else {
+                            $message_without_number = $success_message;
+                        }
+                        ?>
+                        
+                        <?php if ($appointment_number): ?>
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-600 mb-2">Your appointment number is:</p>
+                                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-200">
+                                    <span class="text-2xl font-bold tracking-wider"><?php echo $appointment_number; ?></span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <p class="text-base text-gray-700 leading-relaxed">
+                            <?php echo trim($message_without_number); ?>
                         </p>
                     </div>
-                    <div class="items-center px-4 py-3">
-                        <button id="closeSuccessModal" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300">
-                            Close
+                    
+                    <!-- Close Button -->
+                    <div class="flex justify-center space-x-4">
+                        <button id="closeSuccessModal" class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-lg font-semibold rounded-lg shadow-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transform hover:scale-105 transition-all duration-200">
+                            <i class="fas fa-check mr-2"></i>
+                            Got It!
                         </button>
                     </div>
                 </div>
@@ -120,22 +154,35 @@ include_once 'includes/header.php';
     
     <?php if (!empty($error_message)): ?>
         <!-- Error Modal Popup -->
-        <div id="errorModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                <div class="mt-3 text-center">
-                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+            <div class="relative mx-auto p-8 border-2 border-red-400 w-11/12 max-w-lg shadow-2xl rounded-xl bg-white transform transition-all duration-300 scale-105">
+                <div class="text-center">
+                    <!-- Logo -->
+                    <div class="mb-6">
+                        <img src="assets/images/logo.png" alt="PawssibleSolutions" class="mx-auto h-20 w-auto">
+                    </div>
+                    
+                    <!-- Error Icon -->
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Error</h3>
-                    <div class="mt-2 px-7 py-3">
-                        <p class="text-sm text-gray-500">
+                    
+                    <!-- Title -->
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Something went wrong</h3>
+                    
+                    <!-- Error Message -->
+                    <div class="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
+                        <p class="text-base text-gray-700 leading-relaxed">
                             <?php echo $error_message; ?>
                         </p>
                     </div>
-                    <div class="items-center px-4 py-3">
-                        <button id="closeErrorModal" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                    
+                    <!-- Close Button -->
+                    <div class="flex justify-center space-x-4">
+                        <button id="closeErrorModal" class="px-8 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-lg font-semibold rounded-lg shadow-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 transform hover:scale-105 transition-all duration-200">
+                            <i class="fas fa-times mr-2"></i>
                             Close
                         </button>
                     </div>

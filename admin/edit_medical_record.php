@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         $query = "UPDATE medical_records SET 
                   record_date = :record_date,
+                  record_type = :record_type,
                   diagnosis = :diagnosis,
                   treatment = :treatment,
                   medications = :medications,
@@ -34,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         $stmt = $db->prepare($query);
         $stmt->bindParam(':record_date', $_POST['record_date']);
+        $stmt->bindParam(':record_type', $_POST['record_type']);
         $stmt->bindParam(':diagnosis', $_POST['diagnosis']);
         $stmt->bindParam(':treatment', $_POST['treatment']);
         $stmt->bindParam(':medications', $_POST['medications']);
@@ -99,6 +101,26 @@ include_once '../includes/admin_header.php';
                                required>
                     </div>
 
+                    <!-- Reason for Visit -->
+                    <div>
+                        <label for="record_type" class="block text-sm font-medium text-gray-700">Reason for Visit *</label>
+                        <select name="record_type" id="record_type" 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                                required>
+                            <option value="">Select reason</option>
+                            <option value="Wellness Exam" <?php echo (isset($record['record_type']) && $record['record_type'] === 'Wellness Exam') ? 'selected' : ''; ?>>Wellness Exam</option>
+                            <option value="Vaccination" <?php echo (isset($record['record_type']) && $record['record_type'] === 'Vaccination') ? 'selected' : ''; ?>>Vaccination</option>
+                            <option value="Sick Visit" <?php echo (isset($record['record_type']) && $record['record_type'] === 'Sick Visit') ? 'selected' : ''; ?>>Sick Visit</option>
+                            <option value="Injury" <?php echo (isset($record['record_type']) && $record['record_type'] === 'Injury') ? 'selected' : ''; ?>>Injury</option>
+                            <option value="Dental Care" <?php echo (isset($record['record_type']) && $record['record_type'] === 'Dental Care') ? 'selected' : ''; ?>>Dental Care</option>
+                            <option value="Surgery Consultation" <?php echo (isset($record['record_type']) && $record['record_type'] === 'Surgery Consultation') ? 'selected' : ''; ?>>Surgery Consultation</option>
+                            <option value="Follow-up Visit" <?php echo (isset($record['record_type']) && $record['record_type'] === 'Follow-up Visit') ? 'selected' : ''; ?>>Follow-up Visit</option>
+                            <option value="Other" <?php echo (isset($record['record_type']) && $record['record_type'] === 'Other') ? 'selected' : ''; ?>>Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Created By -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Created By</label>

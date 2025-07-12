@@ -129,13 +129,25 @@ if ($user_role == 'admin') {
                 </div>
                 <div>
                     <span class="text-gray-500">Reason for Visit:</span>
-                    <span class="ml-1"><?php echo htmlspecialchars($record['appointment_reason']); ?></span>
+                    <span class="ml-1"><?php echo htmlspecialchars($record['record_type'] ?? 'Not specified'); ?></span>
                 </div>
             </div>
         </div>
         <?php endif; ?>
         
         <div class="p-6">
+            <!-- Reason for Visit Section -->
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-3 pb-2 border-b border-gray-200">Reason for Visit</h3>
+                <div class="bg-gray-50 p-4 rounded">
+                    <?php if (!empty($record['record_type'])): ?>
+                        <p><?php echo htmlspecialchars($record['record_type']); ?></p>
+                    <?php else: ?>
+                        <p class="text-gray-500 italic">No reason specified</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
             <div class="mb-6">
                 <h3 class="text-xl font-semibold mb-3 pb-2 border-b border-gray-200">Diagnosis</h3>
                 <div class="bg-gray-50 p-4 rounded">
