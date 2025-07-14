@@ -58,6 +58,31 @@ if (!empty($appointment_id)) {
         if (!isset($pet['name']) && isset($pet['pet_name'])) {
             $pet['name'] = $pet['pet_name']; // Add name field for consistency
         }
+        
+        // Auto-select record type based on appointment reason
+        $suggested_record_type = '';
+        if (!empty($appointment_info['reason'])) {
+            $reason = strtolower(trim($appointment_info['reason']));
+            
+            // Map appointment reasons to record types
+            if (strpos($reason, 'wellness') !== false || strpos($reason, 'checkup') !== false || strpos($reason, 'check-up') !== false || strpos($reason, 'routine') !== false) {
+                $suggested_record_type = 'Wellness Exam';
+            } elseif (strpos($reason, 'vaccination') !== false || strpos($reason, 'vaccine') !== false || strpos($reason, 'shots') !== false || strpos($reason, 'immunization') !== false) {
+                $suggested_record_type = 'Vaccination';
+            } elseif (strpos($reason, 'sick') !== false || strpos($reason, 'illness') !== false || strpos($reason, 'not feeling well') !== false || strpos($reason, 'symptoms') !== false) {
+                $suggested_record_type = 'Sick Visit';
+            } elseif (strpos($reason, 'injury') !== false || strpos($reason, 'injured') !== false || strpos($reason, 'hurt') !== false || strpos($reason, 'wound') !== false || strpos($reason, 'accident') !== false) {
+                $suggested_record_type = 'Injury';
+            } elseif (strpos($reason, 'dental') !== false || strpos($reason, 'teeth') !== false || strpos($reason, 'tooth') !== false || strpos($reason, 'cleaning') !== false) {
+                $suggested_record_type = 'Dental Care';
+            } elseif (strpos($reason, 'surgery') !== false || strpos($reason, 'operation') !== false || strpos($reason, 'surgical') !== false) {
+                $suggested_record_type = 'Surgery Consultation';
+            } elseif (strpos($reason, 'follow') !== false || strpos($reason, 'followup') !== false || strpos($reason, 'follow-up') !== false || strpos($reason, 'recheck') !== false) {
+                $suggested_record_type = 'Follow-up Visit';
+            } else {
+                $suggested_record_type = 'Other';
+            }
+        }
     } else {
         $message = "Appointment not found";
         $messageClass = "bg-red-100 border-red-400 text-red-700";
@@ -121,6 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_record'])) {
     $appointment_id_form = isset($_POST['appointment_id']) ? intval($_POST['appointment_id']) : 0;
     $record_date = $_POST['record_date'];
     $record_type = $_POST['record_type'];
+    $reason_for_visit = $_POST['reason_for_visit'] ?? '';
     $diagnosis = $_POST['diagnosis'] ?? '';
     $treatment = $_POST['treatment'] ?? '';
     $medications = $_POST['medications'] ?? '';
@@ -177,6 +203,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_record'])) {
             } else {
                 // If no type field is found, store it in notes
                 $notes = "Type: " . $record_type . "\n\n" . $notes;
+            }
+            
+            // Handle reason_for_visit field if it exists
+            if (in_array('reason_for_visit', $columns)) {
+                $fields[] = 'reason_for_visit';
+                $placeholders[] = ':reason_for_visit';
+                $params[':reason_for_visit'] = $reason_for_visit;
+            } elseif (in_array('reason', $columns)) {
+                // Try alternative field name 'reason'
+                $fields[] = 'reason';
+                $placeholders[] = ':reason';
+                $params[':reason'] = $reason_for_visit;
             }
             
             // Optional fields
@@ -339,18 +377,6 @@ include_once '../includes/admin_header.php';
         </div>
     <?php endif; ?>
     
-    <!-- Policy Information -->
-    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-        <h3 class="text-sm font-semibold text-yellow-800 mb-2">
-            <i class="fas fa-info-circle mr-2"></i>Medical Record Policy
-        </h3>
-        <p class="text-sm text-yellow-700">
-            Each appointment can only have one medical record. Once a medical record is created for an appointment, 
-            you cannot create another one for the same appointment. To add additional medical information, 
-            schedule a new appointment or edit the existing medical record.
-        </p>
-    </div>
-    
     <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
         <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
             <h2 class="text-xl font-semibold">New Medical Record</h2>
@@ -407,19 +433,26 @@ include_once '../includes/admin_header.php';
                         </div>
                         
                         <div class="mb-4">
-                            <label for="record_type" class="block text-gray-700 text-sm font-bold mb-2">Reason for Visit *</label>
+                            <label for="record_type" class="block text-gray-700 text-sm font-bold mb-2">Record Type *</label>
                             <select name="record_type" id="record_type" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-                                <option value="">Select reason</option>
-                                <option value="Wellness Exam">Wellness Exam</option>
-                                <option value="Vaccination">Vaccination</option>
-                                <option value="Sick Visit">Sick Visit</option>
-                                <option value="Injury">Injury</option>
-                                <option value="Dental Care">Dental Care</option>
-                                <option value="Surgery Consultation">Surgery Consultation</option>
-                                <option value="Follow-up Visit">Follow-up Visit</option>
-                                <option value="Other">Other</option>
+                                <option value="">Select record type</option>
+                                <option value="Wellness Exam" <?php echo (isset($suggested_record_type) && $suggested_record_type === 'Wellness Exam') ? 'selected' : ''; ?>>Wellness Exam</option>
+                                <option value="Vaccination" <?php echo (isset($suggested_record_type) && $suggested_record_type === 'Vaccination') ? 'selected' : ''; ?>>Vaccination</option>
+                                <option value="Sick Visit" <?php echo (isset($suggested_record_type) && $suggested_record_type === 'Sick Visit') ? 'selected' : ''; ?>>Sick Visit</option>
+                                <option value="Injury" <?php echo (isset($suggested_record_type) && $suggested_record_type === 'Injury') ? 'selected' : ''; ?>>Injury</option>
+                                <option value="Dental Care" <?php echo (isset($suggested_record_type) && $suggested_record_type === 'Dental Care') ? 'selected' : ''; ?>>Dental Care</option>
+                                <option value="Surgery Consultation" <?php echo (isset($suggested_record_type) && $suggested_record_type === 'Surgery Consultation') ? 'selected' : ''; ?>>Surgery Consultation</option>
+                                <option value="Follow-up Visit" <?php echo (isset($suggested_record_type) && $suggested_record_type === 'Follow-up Visit') ? 'selected' : ''; ?>>Follow-up Visit</option>
+                                <option value="Other" <?php echo (isset($suggested_record_type) && $suggested_record_type === 'Other') ? 'selected' : ''; ?>>Other</option>
                             </select>
+                            <?php if (!empty($appointment_info) && !empty($suggested_record_type)): ?>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    <i class="fas fa-info-circle mr-1"></i>Auto-selected based on appointment reason. You can change if needed.
+                                </p>
+                            <?php endif; ?>
                         </div>
+                        
+                        
                     </div>
                     
                     <div>
@@ -427,12 +460,7 @@ include_once '../includes/admin_header.php';
                         
                         <div class="mb-4">
                             <label for="diagnosis" class="block text-gray-700 text-sm font-bold mb-2">Diagnosis</label>
-                            <textarea name="diagnosis" id="diagnosis" rows="2" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><?php echo !empty($appointment_info['reason']) ? 'Related to: ' . htmlspecialchars($appointment_info['reason']) : ''; ?></textarea>
-                            <?php if (!empty($appointment_info['reason'])): ?>
-                                <p class="text-sm text-gray-600 mt-1">
-                                    <i class="fas fa-info-circle mr-1"></i>Pre-filled with appointment reason. You can modify as needed.
-                                </p>
-                            <?php endif; ?>
+                            <textarea name="diagnosis" id="diagnosis" rows="2" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter diagnosis after examination..."></textarea>
                         </div>
                         
                         <div class="mb-4">

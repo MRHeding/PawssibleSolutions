@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 19, 2025 at 02:46 AM
+-- Generation Time: Jul 12, 2025 at 03:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,6 +41,13 @@ CREATE TABLE `appointments` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `appointments`
+--
+
+INSERT INTO `appointments` (`id`, `appointment_number`, `pet_id`, `vet_id`, `appointment_date`, `appointment_time`, `reason`, `notes`, `status`, `created_at`, `updated_at`) VALUES
+(13, 'A20250001', 4, 5, '2025-07-12', '11:00:00', 'Wellness Exam', '', 'completed', '2025-07-12 02:55:24', '2025-07-12 02:56:12');
+
 -- --------------------------------------------------------
 
 --
@@ -63,13 +70,6 @@ CREATE TABLE `inventory` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `inventory`
---
-
-INSERT INTO `inventory` (`id`, `name`, `category`, `description`, `quantity`, `unit`, `unit_price`, `reorder_level`, `supplier`, `expiry_date`, `location`, `created_at`, `updated_at`) VALUES
-(3, 'Wiskas', 'Food', 'Cat Food', 1, 'Pack', 0.00, 10, 'SM', '2025-05-31', 'a1', '2025-05-28 23:21:59', '2025-05-28 23:21:59');
-
 -- --------------------------------------------------------
 
 --
@@ -89,6 +89,13 @@ CREATE TABLE `invoices` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `invoices`
+--
+
+INSERT INTO `invoices` (`id`, `appointment_id`, `client_id`, `total_amount`, `paid`, `payment_date`, `payment_method`, `notes`, `created_at`, `updated_at`) VALUES
+(3, 13, 18, 250.00, 0, NULL, NULL, '', '2025-07-12 04:13:35', '2025-07-12 04:13:35');
+
 -- --------------------------------------------------------
 
 --
@@ -105,6 +112,13 @@ CREATE TABLE `invoice_items` (
   `total_price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `invoice_items`
+--
+
+INSERT INTO `invoice_items` (`id`, `invoice_id`, `service_id`, `description`, `quantity`, `unit_price`, `total_price`) VALUES
+(3, 3, 4, 'Dental Cleaning', 1, 250.00, 250.00);
+
 -- --------------------------------------------------------
 
 --
@@ -116,6 +130,7 @@ CREATE TABLE `medical_records` (
   `pet_id` int(11) NOT NULL,
   `appointment_id` int(11) DEFAULT NULL,
   `record_date` date NOT NULL,
+  `record_type` varchar(50) DEFAULT NULL,
   `diagnosis` text DEFAULT NULL,
   `treatment` text DEFAULT NULL,
   `medications` text DEFAULT NULL,
@@ -124,6 +139,14 @@ CREATE TABLE `medical_records` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `medical_records`
+--
+
+INSERT INTO `medical_records` (`id`, `pet_id`, `appointment_id`, `record_date`, `record_type`, `diagnosis`, `treatment`, `medications`, `notes`, `created_by`, `created_at`, `updated_at`) VALUES
+(6, 4, 13, '2025-07-12', 'Vaccination', 'Low Immune System', 'Booster', 'Cat Boost', 'Always feed your cat', 1, '2025-07-12 03:15:00', '2025-07-12 03:22:59'),
+(7, 4, NULL, '2025-07-12', 'Sick Visit', 'Numb Limb', 'Anti bacterial treatment and Mefenamic', 'Amoxicillin', 'Always keep your cat indoor while the injury is not healing yet', 1, '2025-07-12 04:05:19', '2025-07-12 04:08:54');
 
 -- --------------------------------------------------------
 
@@ -144,6 +167,13 @@ CREATE TABLE `pets` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `pets`
+--
+
+INSERT INTO `pets` (`id`, `owner_id`, `name`, `species`, `breed`, `gender`, `date_of_birth`, `weight`, `microchip_id`, `created_at`, `updated_at`) VALUES
+(4, 18, 'Molly', 'Cat', 'Other', 'male', '2025-07-09', 5.00, NULL, '2025-07-09 01:30:27', '2025-07-09 01:30:27');
 
 -- --------------------------------------------------------
 
@@ -218,21 +248,6 @@ INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `description`, `up
 -- --------------------------------------------------------
 
 --
--- Table structure for table `time_off`
---
-
-CREATE TABLE `time_off` (
-  `id` int(11) NOT NULL,
-  `vet_id` int(11) NOT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `reason` varchar(255) DEFAULT NULL,
-  `approved` tinyint(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `users`
 --
 
@@ -255,28 +270,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `first_name`, `last_name`, `email`, `phone`, `role`, `last_login`, `created_at`, `updated_at`) VALUES
-(1, 'admin', 'admin', 'Admin', 'User', 'admin@petcare.com', '123-456-7890', 'admin', '2025-06-19 01:08:33', '2025-03-25 15:25:55', '2025-06-18 17:08:33'),
+(1, 'admin', 'admin', 'Admin', 'User', 'admin@petcare.com', '123-456-7890', 'admin', '2025-07-12 21:18:17', '2025-03-25 15:25:55', '2025-07-12 13:18:17'),
 (2, 'sherly', 'sherly', 'Sherly', 'Admin', 'sherly@petcare.com', '123-456-7897', 'admin', '2025-06-18 22:38:42', '2025-03-25 15:25:55', '2025-06-18 14:38:42'),
 (17, 'jmahamud', '$2y$10$SQgBLqcmpQdBJmTOx4ThjuOLvCYD18UXghH8JYu40TJgJ.kwdkNR6', 'Julsiya', 'Mahamud', 'rrasheed121099@gmail.com', '09918195487', 'vet', '2025-06-18 23:20:35', '2025-06-18 15:20:23', '2025-06-18 15:20:35'),
-(18, 'rasheed', '$2y$10$fqJGX1S4eP2FsGHdXxAu7.VeK9qWojzQXYeL/xa6dK2DaJcVsOG1u', 'Rasheed', 'Heding', 'rasheed121099@gmail.com', '09918195487', 'client', '2025-06-19 01:20:27', '2025-06-18 17:20:21', '2025-06-18 17:20:27');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `vaccination_records`
---
-
-CREATE TABLE `vaccination_records` (
-  `id` int(11) NOT NULL,
-  `pet_id` int(11) NOT NULL,
-  `medical_record_id` int(11) DEFAULT NULL,
-  `vaccine_name` varchar(100) NOT NULL,
-  `vaccination_date` date NOT NULL,
-  `valid_until` date DEFAULT NULL,
-  `administered_by` int(11) NOT NULL,
-  `notes` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+(18, 'rasheed', '$2y$10$fqJGX1S4eP2FsGHdXxAu7.VeK9qWojzQXYeL/xa6dK2DaJcVsOG1u', 'Rasheed', 'Heding', 'rasheed121099@gmail.com', '09918195487', 'client', '2025-07-12 11:13:04', '2025-06-18 17:20:21', '2025-07-12 03:13:04');
 
 -- --------------------------------------------------------
 
@@ -301,35 +298,6 @@ INSERT INTO `vets` (`id`, `user_id`, `specialization`, `license_number`, `years_
 (5, 17, 'Medicine', '9248WS', 13, 'Hello World');
 
 -- --------------------------------------------------------
-
---
--- Table structure for table `working_hours`
---
-
-CREATE TABLE `working_hours` (
-  `id` int(11) NOT NULL,
-  `vet_id` int(11) NOT NULL,
-  `day_of_week` tinyint(4) NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `working_hours`
---
-
-INSERT INTO `working_hours` (`id`, `vet_id`, `day_of_week`, `start_time`, `end_time`) VALUES
-(6, 2, 1, '09:00:00', '18:00:00'),
-(7, 2, 2, '09:00:00', '18:00:00'),
-(8, 2, 3, '09:00:00', '18:00:00'),
-(9, 2, 4, '09:00:00', '18:00:00'),
-(10, 2, 5, '09:00:00', '16:00:00'),
-(11, 2, 6, '10:00:00', '14:00:00'),
-(12, 3, 1, '10:00:00', '19:00:00'),
-(13, 3, 2, '10:00:00', '19:00:00'),
-(14, 3, 3, '10:00:00', '19:00:00'),
-(15, 3, 5, '10:00:00', '19:00:00'),
-(16, 3, 6, '09:00:00', '15:00:00');
 
 --
 -- Indexes for dumped tables
@@ -400,13 +368,6 @@ ALTER TABLE `settings`
   ADD UNIQUE KEY `setting_key` (`setting_key`);
 
 --
--- Indexes for table `time_off`
---
-ALTER TABLE `time_off`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `vet_id` (`vet_id`);
-
---
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -416,27 +377,11 @@ ALTER TABLE `users`
   ADD KEY `idx_users_role` (`role`);
 
 --
--- Indexes for table `vaccination_records`
---
-ALTER TABLE `vaccination_records`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `medical_record_id` (`medical_record_id`),
-  ADD KEY `administered_by` (`administered_by`),
-  ADD KEY `idx_vaccinations_pet` (`pet_id`);
-
---
 -- Indexes for table `vets`
 --
 ALTER TABLE `vets`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `user_id` (`user_id`);
-
---
--- Indexes for table `working_hours`
---
-ALTER TABLE `working_hours`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `vet_id` (`vet_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -446,7 +391,7 @@ ALTER TABLE `working_hours`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `inventory`
@@ -458,25 +403,25 @@ ALTER TABLE `inventory`
 -- AUTO_INCREMENT for table `invoices`
 --
 ALTER TABLE `invoices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `invoice_items`
 --
 ALTER TABLE `invoice_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `medical_records`
 --
 ALTER TABLE `medical_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `pets`
 --
 ALTER TABLE `pets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `services`
@@ -491,34 +436,16 @@ ALTER TABLE `settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `time_off`
---
-ALTER TABLE `time_off`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
--- AUTO_INCREMENT for table `vaccination_records`
---
-ALTER TABLE `vaccination_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `vets`
 --
 ALTER TABLE `vets`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `working_hours`
---
-ALTER TABLE `working_hours`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Constraints for dumped tables
@@ -558,20 +485,6 @@ ALTER TABLE `medical_records`
 --
 ALTER TABLE `pets`
   ADD CONSTRAINT `pets_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `time_off`
---
-ALTER TABLE `time_off`
-  ADD CONSTRAINT `time_off_ibfk_1` FOREIGN KEY (`vet_id`) REFERENCES `vets` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `vaccination_records`
---
-ALTER TABLE `vaccination_records`
-  ADD CONSTRAINT `vaccination_records_ibfk_1` FOREIGN KEY (`pet_id`) REFERENCES `pets` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `vaccination_records_ibfk_2` FOREIGN KEY (`medical_record_id`) REFERENCES `medical_records` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `vaccination_records_ibfk_3` FOREIGN KEY (`administered_by`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `vets`

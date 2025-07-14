@@ -56,8 +56,9 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
         }
         
         if ($update_stmt->execute()) {
-            $message = "Appointment status updated successfully";
-            $messageClass = "bg-green-100 border-green-400 text-green-700";
+            $_SESSION['success_message'] = "Appointment status updated successfully";
+            header("Location: appointments.php");
+            exit;
         } else {
             $message = "Error updating appointment status";
             $messageClass = "bg-red-100 border-red-400 text-red-700";

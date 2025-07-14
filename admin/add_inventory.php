@@ -122,8 +122,13 @@ include_once '../includes/admin_header.php';
                 <div class="mb-4">
                     <label for="category" class="block text-gray-700 text-sm font-bold mb-2">Category *</label>
                     <select id="category" name="category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" onchange="toggleCustomCategory()">
+                        <option value="">Select Category</option>
+                        <option value="Food">Food</option>
+                        <option value="Medicine">Medicine</option>
                         <?php foreach ($categories as $cat): ?>
-                            <option value="<?php echo htmlspecialchars($cat); ?>"><?php echo htmlspecialchars($cat); ?></option>
+                            <?php if ($cat !== 'Food' && $cat !== 'Medicine'): ?>
+                                <option value="<?php echo htmlspecialchars($cat); ?>"><?php echo htmlspecialchars($cat); ?></option>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                         <option value="other">Other (specify)</option>
                     </select>
@@ -155,7 +160,7 @@ include_once '../includes/admin_header.php';
                     </div>
                     
                     <div>
-                        <label for="unit_price" class="block text-gray-700 text-sm font-bold mb-2">Unit Price ($) *</label>
+                        <label for="unit_price" class="block text-gray-700 text-sm font-bold mb-2">Unit Price (₱) *</label>
                         <input type="number" id="unit_price" name="unit_price" min="0" step="0.01" value="<?php echo isset($unit_price) ? htmlspecialchars($unit_price) : '0.00'; ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
                     </div>
                     

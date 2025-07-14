@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once '../config/database.php';
+include_once '../includes/service_price_mapper.php';
 
 // Check if user is logged in and is a vet
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'vet') {
@@ -79,7 +80,19 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
             }
             
             if ($update_stmt->execute()) {
-                $message = "Appointment status updated successfully";
+                // Auto-generate invoice if appointment status changed to 'completed'
+                if ($new_status === 'completed') {
+                    try {
+                        ServicePriceMapper::autoGenerateInvoice($db, $appointment_id);
+                        $message = "Appointment status updated successfully. Invoice has been automatically generated.";
+                    } catch (Exception $invoiceError) {
+                        // Log invoice generation error but don't fail the status update
+                        error_log("Invoice generation failed for appointment $appointment_id: " . $invoiceError->getMessage());
+                        $message = "Appointment status updated successfully. Note: Invoice generation failed.";
+                    }
+                } else {
+                    $message = "Appointment status updated successfully";
+                }
                 $messageClass = "bg-green-100 border-green-400 text-green-700";
             } else {
                 $message = "Error updating appointment status";

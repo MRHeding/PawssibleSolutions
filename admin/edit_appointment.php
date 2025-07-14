@@ -13,16 +13,23 @@ $appointment = null;
 $message = '';
 $messageClass = '';
 $pets = [];
+
+// Check for success message from redirect
+if (isset($_SESSION['success_message'])) {
+    $message = $_SESSION['success_message'];
+    $messageClass = "bg-green-100 border-green-400 text-green-700";
+    unset($_SESSION['success_message']);
+}
+
 $services = [
-    'Check-up',
+    'Wellness Exam',
     'Vaccination',
-    'Surgery',
-    'Dental Cleaning',
-    'Grooming',
-    'Emergency',
-    'Laboratory Test',
-    'X-Ray',
-    'Consultation'
+    'Sick Visit',
+    'Injury',
+    'Dental Care',
+    'Surgery Consultation',
+    'Follow-up Visit',
+    'Other'
 ];
 
 // Initialize database connection
@@ -51,14 +58,14 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
 
     // Handle form submission for updating appointment
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_appointment'])) {
-        // Collect form data
-        $pet_id = $_POST['pet_id'];
-        $appointment_date = $_POST['appointment_date'];
-        $appointment_time = $_POST['appointment_time'];
-        $service = $_POST['service'];
-        $status = $_POST['status'];
-        $reason = $_POST['reason'];
-        $admin_notes = $_POST['admin_notes'] ?? '';
+        // Collect form data with error checking
+        $pet_id = isset($_POST['pet_id']) ? $_POST['pet_id'] : '';
+        $appointment_date = isset($_POST['appointment_date']) ? $_POST['appointment_date'] : '';
+        $appointment_time = isset($_POST['appointment_time']) ? $_POST['appointment_time'] : '';
+        $service = isset($_POST['service']) ? $_POST['service'] : '';
+        $status = isset($_POST['status']) ? $_POST['status'] : '';
+        $notes = isset($_POST['notes']) ? $_POST['notes'] : '';
+        $admin_notes = isset($_POST['admin_notes']) ? $_POST['admin_notes'] : '';
         
         // Validate inputs
         $errors = [];
@@ -74,9 +81,9 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
                                 pet_id = :pet_id,
                                 appointment_date = :appointment_date,
                                 appointment_time = :appointment_time,
-                                service = :service,
+                                reason = :service,
+                                notes = :notes,
                                 status = :status,
-                                reason = :reason,
                                 admin_notes = :admin_notes,
                                 updated_at = NOW()
                                 WHERE id = :appointment_id";
@@ -86,8 +93,8 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
                 $update_stmt->bindParam(':appointment_date', $appointment_date);
                 $update_stmt->bindParam(':appointment_time', $appointment_time);
                 $update_stmt->bindParam(':service', $service);
+                $update_stmt->bindParam(':notes', $notes);
                 $update_stmt->bindParam(':status', $status);
-                $update_stmt->bindParam(':reason', $reason);
                 $update_stmt->bindParam(':admin_notes', $admin_notes);
                 $update_stmt->bindParam(':appointment_id', $appointment_id);
             } else {
@@ -95,9 +102,9 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
                                 pet_id = :pet_id,
                                 appointment_date = :appointment_date,
                                 appointment_time = :appointment_time,
-                                service = :service,
+                                reason = :service,
+                                notes = :notes,
                                 status = :status,
-                                reason = :reason,
                                 updated_at = NOW()
                                 WHERE id = :appointment_id";
                 
@@ -106,29 +113,19 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
                 $update_stmt->bindParam(':appointment_date', $appointment_date);
                 $update_stmt->bindParam(':appointment_time', $appointment_time);
                 $update_stmt->bindParam(':service', $service);
+                $update_stmt->bindParam(':notes', $notes);
                 $update_stmt->bindParam(':status', $status);
-                $update_stmt->bindParam(':reason', $reason);
                 $update_stmt->bindParam(':appointment_id', $appointment_id);
             }
             
             if ($update_stmt->execute()) {
-                $message = "Appointment updated successfully";
-                $messageClass = "bg-green-100 border-green-400 text-green-700";
-                
-                // Refresh appointment data
-                $query = "SELECT a.*, p.name as pet_name, p.species, p.breed, 
-                          u.first_name, u.last_name, u.email, u.phone 
-                          FROM appointments a 
-                          LEFT JOIN pets p ON a.pet_id = p.id 
-                          LEFT JOIN users u ON p.owner_id = u.id 
-                          WHERE a.id = :appointment_id";
-                
-                $stmt = $db->prepare($query);
-                $stmt->bindParam(':appointment_id', $appointment_id);
-                $stmt->execute();
-                $appointment = $stmt->fetch(PDO::FETCH_ASSOC);
+                // Success - redirect to appointments list
+                $_SESSION['success_message'] = "Appointment updated successfully";
+                header("Location: appointments.php");
+                exit;
             } else {
-                $message = "Error updating appointment";
+                $errorInfo = $update_stmt->errorInfo();
+                $message = "Error updating appointment: " . $errorInfo[2];
                 $messageClass = "bg-red-100 border-red-400 text-red-700";
             }
         } else {
@@ -228,7 +225,7 @@ include_once '../includes/admin_header.php';
                                 <select name="service" id="service" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
                                     <option value="">Select Service</option>
                                     <?php foreach ($services as $service): ?>
-                                        <option value="<?php echo $service; ?>" <?php echo ($service == $appointment['service']) ? 'selected' : ''; ?>>
+                                        <option value="<?php echo $service; ?>" <?php echo ($service === $appointment['reason']) ? 'selected' : ''; ?>>
                                             <?php echo $service; ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -242,17 +239,16 @@ include_once '../includes/admin_header.php';
                             <div class="mb-4">
                                 <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Status</label>
                                 <select name="status" id="status" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-                                    <option value="pending" <?php echo ($appointment['status'] === 'pending') ? 'selected' : ''; ?>>Pending</option>
-                                    <option value="confirmed" <?php echo ($appointment['status'] === 'confirmed') ? 'selected' : ''; ?>>Confirmed</option>
+                                    <option value="scheduled" <?php echo ($appointment['status'] === 'scheduled') ? 'selected' : ''; ?>>Scheduled</option>
                                     <option value="completed" <?php echo ($appointment['status'] === 'completed') ? 'selected' : ''; ?>>Completed</option>
-                                    <option value="canceled" <?php echo ($appointment['status'] === 'canceled') ? 'selected' : ''; ?>>Canceled</option>
+                                    <option value="cancelled" <?php echo ($appointment['status'] === 'cancelled') ? 'selected' : ''; ?>>Cancelled</option>
                                     <option value="no-show" <?php echo ($appointment['status'] === 'no-show') ? 'selected' : ''; ?>>No Show</option>
                                 </select>
                             </div>
                             
                             <div class="mb-4">
-                                <label for="reason" class="block text-gray-700 text-sm font-bold mb-2">Reason for Visit</label>
-                                <textarea name="reason" id="reason" rows="3" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><?php echo htmlspecialchars($appointment['reason']); ?></textarea>
+                                <label for="notes" class="block text-gray-700 text-sm font-bold mb-2">Additional Notes</label>
+                                <textarea name="notes" id="notes" rows="3" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><?php echo htmlspecialchars($appointment['notes'] ?? ''); ?></textarea>
                             </div>
                             
                             <?php if ($adminNotesExists): ?>
@@ -283,5 +279,27 @@ include_once '../includes/admin_header.php';
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add form validation to ensure proper submission
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Validate required fields
+            const service = document.getElementById('service').value;
+            const petId = document.getElementById('pet_id').value;
+            const appointmentDate = document.getElementById('appointment_date').value;
+            const appointmentTime = document.getElementById('appointment_time').value;
+            
+            if (!service || !petId || !appointmentDate || !appointmentTime) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+                return false;
+            }
+        });
+    }
+});
+</script>
 
 <?php include_once '../includes/admin_footer.php'; ?>

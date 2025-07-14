@@ -1,6 +1,7 @@
 <?php
 session_start();
 include_once '../config/database.php';
+include_once '../includes/service_price_mapper.php';
 
 // Check if user is logged in and is a vet
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'vet') {
@@ -245,7 +246,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_record'])) {
                     $update_status_stmt = $db->prepare($update_status_query);
                     $update_status_stmt->bindParam(':appointment_id', $appointment_id);
                     $update_status_stmt->bindParam(':vet_id', $vet_id);
-                    $update_status_stmt->execute();
+                    
+                    if ($update_status_stmt->execute()) {
+                        // Auto-generate invoice when appointment is marked as completed
+                        try {
+                            ServicePriceMapper::autoGenerateInvoice($db, $appointment_id);
+                        } catch (Exception $invoiceError) {
+                            // Log invoice generation error but don't fail the medical record creation
+                            error_log("Invoice generation failed for appointment $appointment_id: " . $invoiceError->getMessage());
+                        }
+                    }
                 }
                 
                 $_SESSION['success_message'] = "Medical record added successfully";

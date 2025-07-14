@@ -15,8 +15,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     exit;
 }
 
-// Include database
+// Include database and service price mapper
 include_once '../config/database.php';
+include_once '../includes/service_price_mapper.php';
 
 // Initialize database connection
 $database = new Database();
@@ -84,6 +85,16 @@ if (isset($requestData['appointment_id']) || isset($requestData['id'])) {
                 
                 try {
                     if ($update_stmt->execute()) {
+                        // Auto-generate invoice if appointment status changed to 'completed'
+                        if ($status === 'completed' && $old_status !== 'completed') {
+                            try {
+                                ServicePriceMapper::autoGenerateInvoice($db, $appointment_id);
+                            } catch (Exception $invoiceError) {
+                                // Log invoice generation error but don't fail the status update
+                                error_log("Invoice generation failed for appointment $appointment_id: " . $invoiceError->getMessage());
+                            }
+                        }
+                        
                         // Try to log the status change if table exists
                         try {
                             $log_query = "INSERT INTO activity_logs (user_id, action_type, entity_type, entity_id, details, created_at) 
@@ -101,6 +112,11 @@ if (isset($requestData['appointment_id']) || isset($requestData['id'])) {
                         
                         $success = true;
                         $message = "Appointment status updated successfully from '$old_status' to '$status'";
+                        
+                        // Add invoice generation confirmation if applicable
+                        if ($status === 'completed' && $old_status !== 'completed') {
+                            $message .= ". Invoice has been automatically generated.";
+                        }
                         
                         // Set session message for non-AJAX requests
                         if (!$isAjaxRequest) {
