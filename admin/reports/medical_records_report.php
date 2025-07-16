@@ -366,21 +366,3 @@
     <?php endif; ?>
 
 </div>
-
-<!-- Medical Records Export Options -->
-<div class="bg-white rounded-lg shadow-md p-6">
-    <h3 class="text-lg font-semibold text-gray-800 mb-4">Export Medical Records Report</h3>
-    <div class="flex flex-wrap gap-4">
-        <a href="export_csv_report.php?report_type=medical_records&date_from=<?php echo $date_from; ?>&date_to=<?php echo $date_to; ?>" 
-           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">
-            <i class="fas fa-file-csv mr-2"></i>Export to CSV
-        </a>
-        <a href="export_pdf_report.php?report_type=medical_records&date_from=<?php echo $date_from; ?>&date_to=<?php echo $date_to; ?>" 
-           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm">
-            <i class="fas fa-file-pdf mr-2"></i>Export to PDF
-        </a>
-        <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm">
-            <i class="fas fa-print mr-2"></i>Print Report
-        </button>
-    </div>
-</div>

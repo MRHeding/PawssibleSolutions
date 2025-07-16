@@ -59,32 +59,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($payment_amount <= 0) {
         $message = "Please enter a valid payment amount";
         $messageClass = "bg-red-100 border-red-400 text-red-700";
-    } elseif ($payment_amount > $invoice['total_amount']) {
-        $message = "Payment amount cannot exceed the invoice total";
-        $messageClass = "bg-red-100 border-red-400 text-red-700";
     } elseif (empty($payment_method)) {
         $message = "Please select a payment method";
         $messageClass = "bg-red-100 border-red-400 text-red-700";
     } else {
         try {
+            // Calculate change if payment exceeds invoice amount
+            $change_amount = $payment_amount - $invoice['total_amount'];
+            
             // Update invoice with payment information
             $update_query = "UPDATE invoices SET 
                             paid = 1,
                             payment_date = NOW(),
                             payment_method = :payment_method,
-                            notes = CONCAT(COALESCE(notes, ''), '\n\nPayment Notes: ', :payment_notes)
+                            payment_amount = :payment_amount,
+                            change_amount = :change_amount,
+                            notes = CONCAT(COALESCE(notes, ''), CASE WHEN :payment_notes != '' THEN CONCAT('\n\nPayment Notes: ', :payment_notes) ELSE '' END)
                             WHERE id = :invoice_id";
             $update_stmt = $db->prepare($update_query);
             $update_stmt->bindParam(':payment_method', $payment_method);
+            $update_stmt->bindParam(':payment_amount', $payment_amount);
+            $update_stmt->bindParam(':change_amount', $change_amount);
             $update_stmt->bindParam(':payment_notes', $payment_notes);
             $update_stmt->bindParam(':invoice_id', $invoice_id);
             
             if ($update_stmt->execute()) {
-                $message = "Payment recorded successfully!";
+                if ($change_amount > 0) {
+                    $message = "Payment recorded successfully! Change due: ₱" . number_format($change_amount, 2);
+                } else {
+                    $message = "Payment recorded successfully!";
+                }
                 $messageClass = "bg-green-100 border-green-400 text-green-700";
                 
-                // Redirect after 2 seconds
-                header("refresh:2;url=view_invoice.php?id=" . $invoice_id);
+                // Redirect after 3 seconds to give time to read change amount
+                header("refresh:3;url=view_invoice.php?id=" . $invoice_id);
             } else {
                 $message = "Error recording payment";
                 $messageClass = "bg-red-100 border-red-400 text-red-700";
@@ -203,23 +211,20 @@ include_once '../includes/admin_header.php';
                             <input type="number" name="payment_amount" id="payment_amount" 
                                    class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
                                    value="<?php echo $invoice['total_amount']; ?>" 
-                                   min="0.01" max="<?php echo $invoice['total_amount']; ?>" step="0.01" required>
+                                   min="0.01" step="0.01" required>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Maximum amount: ₱<?php echo number_format($invoice['total_amount'], 2); ?></p>
+                        <div class="mt-2 space-y-1">
+                            <p class="text-xs text-gray-500">Invoice Total: ₱<?php echo number_format($invoice['total_amount'], 2); ?></p>
+                            <div id="change-display" class="text-sm font-medium hidden">
+                                <span id="change-label">Change:</span> ₱<span id="change-amount">0.00</span>
+                            </div>
+                        </div>
                     </div>
                     
                     <div>
                         <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-2">Payment Method *</label>
                         <select name="payment_method" id="payment_method" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required>
-                            <option value="">Select Payment Method</option>
-                            <option value="cash">Cash</option>
-                            <option value="credit_card">Credit Card</option>
-                            <option value="debit_card">Debit Card</option>
-                            <option value="check">Check</option>
-                            <option value="bank_transfer">Bank Transfer</option>
-                            <option value="mobile_payment">Mobile Payment</option>
-                            <option value="insurance">Insurance</option>
-                            <option value="other">Other</option>
+                            <option value="cash" selected>Cash</option>
                         </select>
                     </div>
                     
@@ -263,15 +268,39 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-focus on payment amount
     document.getElementById('payment_amount').focus();
     
-    // Validate payment amount
-    document.getElementById('payment_amount').addEventListener('input', function() {
-        const maxAmount = <?php echo $invoice['total_amount']; ?>;
-        const currentAmount = parseFloat(this.value) || 0;
+    const paymentInput = document.getElementById('payment_amount');
+    const changeDisplay = document.getElementById('change-display');
+    const changeAmount = document.getElementById('change-amount');
+    const invoiceTotal = <?php echo $invoice['total_amount']; ?>;
+    
+    // Calculate and display change
+    function calculateChange() {
+        const paymentAmount = parseFloat(paymentInput.value) || 0;
+        const change = paymentAmount - invoiceTotal;
+        const changeLabel = document.getElementById('change-label');
         
-        if (currentAmount > maxAmount) {
-            this.value = maxAmount.toFixed(2);
+        if (change > 0) {
+            changeAmount.textContent = change.toFixed(2);
+            changeLabel.textContent = 'Change:';
+            changeDisplay.classList.remove('hidden');
+            changeDisplay.classList.add('text-green-600');
+            changeDisplay.classList.remove('text-red-600');
+        } else if (change < 0) {
+            changeAmount.textContent = Math.abs(change).toFixed(2);
+            changeLabel.textContent = 'Amount Short:';
+            changeDisplay.classList.remove('hidden');
+            changeDisplay.classList.add('text-red-600');
+            changeDisplay.classList.remove('text-green-600');
+        } else {
+            changeDisplay.classList.add('hidden');
         }
-    });
+    }
+    
+    // Update change calculation on input
+    paymentInput.addEventListener('input', calculateChange);
+    
+    // Initial calculation
+    calculateChange();
 });
 </script>
 

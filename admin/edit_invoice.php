@@ -135,9 +135,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $update_stmt->bindParam(':used_qty', $service['quantity']);
                     $update_stmt->bindParam(':inv_id', $inventory_id);
                     $update_stmt->execute();
-                } else {
-                    // For regular services, use the service_id
+                } elseif (is_numeric($service['service_id'])) {
+                    // For database services with numeric IDs, use the service_id
                     $service_id = $service['service_id'];
+                } else {
+                    // For appointment-type services (Check-up, Vaccination, etc.), set service_id to null
+                    // These are treated as custom services and stored in description only
+                    $service_id = null;
                 }
                 
                 $item_stmt->bindParam(':invoice_id', $invoice_id);
@@ -272,7 +276,7 @@ include_once '../includes/admin_header.php';
                             <i class="fas fa-plus mr-2"></i>Add Service
                         </button>
                         <button type="button" id="addInventoryBtn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
-                            <i class="fas fa-box mr-2"></i>Add Inventory
+                            <i class="fas fa-box mr-2"></i>Add Item
                         </button>
                     </div>
                 </div>
@@ -281,26 +285,37 @@ include_once '../includes/admin_header.php';
                     <?php foreach ($current_items as $index => $item): ?>
                         <div class="service-item bg-gray-50 p-4 rounded-lg mb-4">
                             <?php 
-                            // Check if this is an inventory item (service_id is null means it's an inventory item)
-                            $isInventoryItem = is_null($item['service_id']);
+                            // Determine if this is an inventory item vs appointment service
+                            // Inventory items have NULL service_id AND description contains unit info in parentheses
+                            // Appointment services have NULL service_id BUT are standard appointment reasons
+                            $isInventoryItem = false;
                             $inventoryId = null;
                             $availableQty = 0;
                             
-                            // For inventory items, try to find the inventory item by description
-                            if ($isInventoryItem) {
-                                $description_parts = explode(' (', $item['description']);
-                                $item_name = trim($description_parts[0]);
+                            if (is_null($item['service_id'])) {
+                                // Check if description pattern suggests it's an inventory item (contains units in parentheses)
+                                $appointmentServices = ['Regular Check-up', 'Vaccination', 'Illness', 'Injury', 'Surgery', 'Dental Care', 'Follow-up Visit', 'Other'];
+                                $isAppointmentService = in_array($item['description'], $appointmentServices);
                                 
-                                $find_inv_query = "SELECT id, quantity FROM inventory WHERE name LIKE :item_name LIMIT 1";
-                                $find_inv_stmt = $db->prepare($find_inv_query);
-                                $search_name = '%' . $item_name . '%';
-                                $find_inv_stmt->bindParam(':item_name', $search_name);
-                                $find_inv_stmt->execute();
-                                $inv_result = $find_inv_stmt->fetch(PDO::FETCH_ASSOC);
-                                
-                                if ($inv_result) {
-                                    $inventoryId = $inv_result['id'];
-                                    $availableQty = $inv_result['quantity'];
+                                // If it's not a standard appointment service and contains unit info, treat as inventory
+                                if (!$isAppointmentService && (strpos($item['description'], ' (') !== false)) {
+                                    $isInventoryItem = true;
+                                    
+                                    // Try to find the inventory item by description
+                                    $description_parts = explode(' (', $item['description']);
+                                    $item_name = trim($description_parts[0]);
+                                    
+                                    $find_inv_query = "SELECT id, quantity FROM inventory WHERE name LIKE :item_name LIMIT 1";
+                                    $find_inv_stmt = $db->prepare($find_inv_query);
+                                    $search_name = '%' . $item_name . '%';
+                                    $find_inv_stmt->bindParam(':item_name', $search_name);
+                                    $find_inv_stmt->execute();
+                                    $inv_result = $find_inv_stmt->fetch(PDO::FETCH_ASSOC);
+                                    
+                                    if ($inv_result) {
+                                        $inventoryId = $inv_result['id'];
+                                        $availableQty = $inv_result['quantity'];
+                                    }
                                 }
                             }
                             ?>
@@ -344,15 +359,14 @@ include_once '../includes/admin_header.php';
                                     <?php else: ?>
                                         <select name="services[<?php echo $index; ?>][service_id]" class="service-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500" required>
                                             <option value="">Select Service</option>
-                                            <option value="1" data-price="500.00" data-name="Wellness Exam" <?php echo ($item['service_id'] == '1') ? 'selected' : ''; ?>>Wellness Exam</option>
-                                            <option value="2" data-price="300.00" data-name="Vaccination" <?php echo ($item['service_id'] == '2') ? 'selected' : ''; ?>>Vaccination</option>
-                                            <option value="3" data-price="200.00" data-name="Deworming" <?php echo ($item['service_id'] == '3') ? 'selected' : ''; ?>>Deworming</option>
-                                            <option value="4" data-price="1500.00" data-name="Surgery" <?php echo ($item['service_id'] == '4') ? 'selected' : ''; ?>>Surgery</option>
-                                            <option value="5" data-price="800.00" data-name="Diagnostic Services" <?php echo ($item['service_id'] == '5') ? 'selected' : ''; ?>>Diagnostic Services</option>
-                                            <option value="6" data-price="1000.00" data-name="Emergency Care" <?php echo ($item['service_id'] == '6') ? 'selected' : ''; ?>>Emergency Care</option>
-                                            <option value="7" data-price="600.00" data-name="Dental Care" <?php echo ($item['service_id'] == '7') ? 'selected' : ''; ?>>Dental Care</option>
-                                            <option value="8" data-price="400.00" data-name="Follow-up Visit" <?php echo ($item['service_id'] == '8') ? 'selected' : ''; ?>>Follow-up Visit</option>
-                                            <option value="9" data-price="250.00" data-name="Consultation" <?php echo ($item['service_id'] == '9') ? 'selected' : ''; ?>>Consultation</option>
+                                            <option value="Check-up" data-price="500.00" data-name="Regular Check-up" <?php echo ($item['description'] == 'Regular Check-up') ? 'selected' : ''; ?>>Regular Check-up</option>
+                                            <option value="Vaccination" data-price="500.00" data-name="Vaccination" <?php echo ($item['description'] == 'Vaccination') ? 'selected' : ''; ?>>Vaccination</option>
+                                            <option value="Illness" data-price="1000.00" data-name="Illness" <?php echo ($item['description'] == 'Illness') ? 'selected' : ''; ?>>Illness</option>
+                                            <option value="Injury" data-price="2000.00" data-name="Injury" <?php echo ($item['description'] == 'Injury') ? 'selected' : ''; ?>>Injury</option>
+                                            <option value="Surgery" data-price="700.00" data-name="Surgery" <?php echo ($item['description'] == 'Surgery') ? 'selected' : ''; ?>>Surgery</option>
+                                            <option value="Dental" data-price="500.00" data-name="Dental Care" <?php echo ($item['description'] == 'Dental Care') ? 'selected' : ''; ?>>Dental Care</option>
+                                            <option value="Follow-up" data-price="300.00" data-name="Follow-up Visit" <?php echo ($item['description'] == 'Follow-up Visit') ? 'selected' : ''; ?>>Follow-up Visit</option>
+                                            <option value="Other" data-price="500.00" data-name="Other" <?php echo ($item['description'] == 'Other') ? 'selected' : ''; ?>>Other</option>
                                         </select>
                                     <?php endif; ?>
                                 </div>
@@ -368,7 +382,7 @@ include_once '../includes/admin_header.php';
                                     <input type="number" name="services[<?php echo $index; ?>][quantity]" 
                                            value="<?php echo $item['quantity']; ?>"
                                            class="quantity-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500" 
-                                           min="1" <?php echo $isInventoryItem ? 'max="' . ($availableQty + $item['quantity']) . '"' : ''; ?> step="1" required>
+                                           min="1" <?php echo $isInventoryItem ? 'max="' . ($availableQty + $item['quantity']) . '"' : 'readonly'; ?> step="1" required>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Unit Price (₱)</label>
@@ -445,15 +459,14 @@ function addServiceRow() {
                 <label class="block text-sm font-medium text-gray-700 mb-1">Service</label>
                 <select name="services[${serviceIndex}][service_id]" class="service-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500" required>
                     <option value="">Select Service</option>
-                    <option value="1" data-price="500.00" data-name="Wellness Exam">Wellness Exam</option>
-                    <option value="2" data-price="300.00" data-name="Vaccination">Vaccination</option>
-                    <option value="3" data-price="200.00" data-name="Deworming">Deworming</option>
-                    <option value="4" data-price="1500.00" data-name="Surgery">Surgery</option>
-                    <option value="5" data-price="800.00" data-name="Diagnostic Services">Diagnostic Services</option>
-                    <option value="6" data-price="1000.00" data-name="Emergency Care">Emergency Care</option>
-                    <option value="7" data-price="600.00" data-name="Dental Care">Dental Care</option>
-                    <option value="8" data-price="400.00" data-name="Follow-up Visit">Follow-up Visit</option>
-                    <option value="9" data-price="250.00" data-name="Consultation">Consultation</option>
+                    <option value="Check-up" data-price="500.00" data-name="Regular Check-up">Regular Check-up</option>
+                    <option value="Vaccination" data-price="500.00" data-name="Vaccination">Vaccination</option>
+                    <option value="Illness" data-price="1000.00" data-name="Illness">Illness</option>
+                    <option value="Injury" data-price="2000.00" data-name="Injury">Injury</option>
+                    <option value="Surgery" data-price="700.00" data-name="Surgery">Surgery</option>
+                    <option value="Dental" data-price="500.00" data-name="Dental Care">Dental Care</option>
+                    <option value="Follow-up" data-price="300.00" data-name="Follow-up Visit">Follow-up Visit</option>
+                    <option value="Other" data-price="500.00" data-name="Other">Other</option>
                 </select>
             </div>
             <div>
@@ -466,7 +479,7 @@ function addServiceRow() {
                 <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
                 <input type="number" name="services[${serviceIndex}][quantity]" value="1"
                        class="quantity-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500" 
-                       min="1" step="1" required>
+                       min="1" step="1" readonly required>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Unit Price (₱)</label>
@@ -583,8 +596,7 @@ function attachServiceEventListeners(serviceItem) {
         }
     });
     
-    // Quantity or price change
-    quantityInput.addEventListener('input', () => updateServiceTotal(serviceItem));
+    // Quantity or price change (quantity is readonly for services, so only price changes will trigger this)
     unitPriceInput.addEventListener('input', () => updateServiceTotal(serviceItem));
     
     // Remove service

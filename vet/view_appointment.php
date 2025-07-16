@@ -2,6 +2,7 @@
 session_start();
 include_once '../config/database.php';
 include_once '../includes/service_price_mapper.php';
+include_once '../includes/appointment_number_generator.php';
 
 // Check if user is logged in and is a vet
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'vet') {
@@ -15,10 +16,15 @@ $user_id = $_SESSION['user_id'];
 $appointment = null;
 $message = '';
 $messageClass = '';
+$followup_message = '';
+$followup_messageClass = '';
 
 // Initialize database connection
 $database = new Database();
 $db = $database->getConnection();
+
+// Initialize appointment number generator
+$appointmentNumberGenerator = new AppointmentNumberGenerator($db);
 
 // Get vet information
 $vet_query = "SELECT * FROM vets WHERE user_id = :user_id";
@@ -43,6 +49,79 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
         $message = "You do not have permission to view this appointment";
         $messageClass = "bg-red-100 border-red-400 text-red-700";
     } else {
+        // Handle follow-up appointment scheduling
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['schedule_followup'])) {
+            $followup_date = $_POST['followup_date'];
+            $followup_time = $_POST['followup_time'];
+            $followup_reason = $_POST['followup_reason'];
+            $followup_notes = $_POST['followup_notes'] ?? '';
+            
+            if (empty($followup_date) || empty($followup_time) || empty($followup_reason)) {
+                $followup_message = "All follow-up appointment fields are required";
+                $followup_messageClass = "bg-red-100 border-red-400 text-red-700";
+            } else {
+                // Get current appointment details for follow-up
+                $current_apt_query = "SELECT pet_id FROM appointments WHERE id = :appointment_id";
+                $current_apt_stmt = $db->prepare($current_apt_query);
+                $current_apt_stmt->bindParam(':appointment_id', $appointment_id);
+                $current_apt_stmt->execute();
+                $current_appointment = $current_apt_stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($current_appointment) {
+                    $pet_id = $current_appointment['pet_id'];
+                    
+                    // Check for time conflicts
+                    $conflict_check = "SELECT COUNT(*) FROM appointments 
+                                      WHERE vet_id = :vet_id 
+                                      AND appointment_date = :date 
+                                      AND appointment_time = :time 
+                                      AND status != 'cancelled'";
+                    $conflict_stmt = $db->prepare($conflict_check);
+                    $conflict_stmt->bindParam(':vet_id', $vet_id);
+                    $conflict_stmt->bindParam(':date', $followup_date);
+                    $conflict_stmt->bindParam(':time', $followup_time);
+                    $conflict_stmt->execute();
+                    
+                    if ($conflict_stmt->fetchColumn() > 0) {
+                        $followup_message = "You already have an appointment scheduled at the selected time";
+                        $followup_messageClass = "bg-red-100 border-red-400 text-red-700";
+                    } else {
+                        // Generate appointment number
+                        $appointment_number = $appointmentNumberGenerator->generateAppointmentNumber();
+                        
+                        // Insert the new follow-up appointment
+                        $insert_query = "INSERT INTO appointments (appointment_number, pet_id, vet_id, appointment_date, appointment_time, reason, notes, status, created_at) 
+                                        VALUES (:appointment_number, :pet_id, :vet_id, :appointment_date, :appointment_time, :reason, :notes, 'scheduled', NOW())";
+                        
+                        try {
+                            $stmt = $db->prepare($insert_query);
+                            $stmt->bindParam(':appointment_number', $appointment_number);
+                            $stmt->bindParam(':pet_id', $pet_id);
+                            $stmt->bindParam(':vet_id', $vet_id);
+                            $stmt->bindParam(':appointment_date', $followup_date);
+                            $stmt->bindParam(':appointment_time', $followup_time);
+                            $stmt->bindParam(':reason', $followup_reason);
+                            $stmt->bindParam(':notes', $followup_notes);
+                            
+                            if ($stmt->execute()) {
+                                $followup_message = "Follow-up appointment #{$appointment_number} scheduled successfully";
+                                $followup_messageClass = "bg-green-100 border-green-400 text-green-700";
+                            } else {
+                                $followup_message = "Error scheduling follow-up appointment";
+                                $followup_messageClass = "bg-red-100 border-red-400 text-red-700";
+                            }
+                        } catch (PDOException $e) {
+                            $followup_message = "Database error: " . $e->getMessage();
+                            $followup_messageClass = "bg-red-100 border-red-400 text-red-700";
+                        }
+                    }
+                } else {
+                    $followup_message = "Unable to retrieve current appointment details";
+                    $followup_messageClass = "bg-red-100 border-red-400 text-red-700";
+                }
+            }
+        }
+        
         // Handle status update if form is submitted
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
             $new_status = $_POST['status'];
@@ -279,6 +358,77 @@ include_once '../includes/vet_header.php';
                     <div>
                         <button type="submit" name="update_status" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                             Update Appointment
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Follow-up Appointment Scheduling Section -->
+            <?php if ($appointment['status'] === 'completed' || $appointment['status'] === 'scheduled'): ?>
+            <div id="followup" class="p-6 border-t border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold mb-3 text-indigo-700">Schedule Follow-up Appointment</h3>
+                
+                <?php if (!empty($followup_message)): ?>
+                    <div class="<?php echo $followup_messageClass; ?> px-4 py-3 rounded mb-4">
+                        <?php echo $followup_message; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="post">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="followup_date" class="block text-gray-700 text-sm font-bold mb-2">Follow-up Date</label>
+                            <input type="date" name="followup_date" id="followup_date" 
+                                   min="<?php echo date('Y-m-d', strtotime('+1 day')); ?>"
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                        </div>
+                        <div>
+                            <label for="followup_time" class="block text-gray-700 text-sm font-bold mb-2">Follow-up Time</label>
+                            <select name="followup_time" id="followup_time" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                                <option value="">Select Time</option>
+                                <option value="09:00:00">9:00 AM</option>
+                                <option value="09:30:00">9:30 AM</option>
+                                <option value="10:00:00">10:00 AM</option>
+                                <option value="10:30:00">10:30 AM</option>
+                                <option value="11:00:00">11:00 AM</option>
+                                <option value="11:30:00">11:30 AM</option>
+                                <option value="12:00:00">12:00 PM</option>
+                                <option value="12:30:00">12:30 PM</option>
+                                <option value="13:00:00">1:00 PM</option>
+                                <option value="13:30:00">1:30 PM</option>
+                                <option value="14:00:00">2:00 PM</option>
+                                <option value="14:30:00">2:30 PM</option>
+                                <option value="15:00:00">3:00 PM</option>
+                                <option value="15:30:00">3:30 PM</option>
+                                <option value="16:00:00">4:00 PM</option>
+                                <option value="16:30:00">4:30 PM</option>
+                                <option value="17:00:00">5:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="followup_reason" class="block text-gray-700 text-sm font-bold mb-2">Reason for Follow-up</label>
+                        <input type="text" name="followup_reason" id="followup_reason" 
+                               placeholder="e.g., Post-treatment check-up, Vaccination follow-up, etc."
+                               class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="followup_notes" class="block text-gray-700 text-sm font-bold mb-2">Additional Notes (Optional)</label>
+                        <textarea name="followup_notes" id="followup_notes" rows="3" 
+                                  placeholder="Any specific instructions or notes for the follow-up appointment..."
+                                  class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 mb-4">
+                        <p><strong>Note:</strong> The follow-up appointment will be scheduled for you with the same pet (<?php echo htmlspecialchars($appointment['pet_name']); ?>).</p>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" name="schedule_followup" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                            <i class="fas fa-calendar-plus mr-2"></i>Schedule Follow-up
                         </button>
                     </div>
                 </form>

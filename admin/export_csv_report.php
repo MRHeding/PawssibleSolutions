@@ -34,20 +34,22 @@ $output = fopen('php://output', 'w');
 
 switch ($report_type) {
     case 'daily_appointments':
-        // CSV headers for appointments
+        // CSV headers for appointments - COMPREHENSIVE DATA
         fputcsv($output, [
-            'Date', 'Time', 'Appointment Number', 'Pet Name', 'Species', 'Owner Name', 
-            'Owner Email', 'Owner Phone', 'Veterinarian', 'Reason', 'Status', 'Notes'
+            'Date', 'Time', 'Appointment Number', 'Pet Name', 'Species', 'Breed', 'Pet DOB', 'Pet Weight',
+            'Owner Name', 'Owner Email', 'Owner Phone', 'Owner Address', 'Veterinarian', 
+            'Reason', 'Status', 'Notes', 'Created Date'
         ]);
         
-        // Get appointments data
+        // Get ALL appointments data (removed LIMIT)
         $query = "SELECT 
             a.*, 
             p.name as pet_name, 
-            p.species,
+            p.species, p.breed, p.date_of_birth, p.weight,
             CONCAT(owner.first_name, ' ', owner.last_name) as owner_name,
             owner.email as owner_email,
             owner.phone as owner_phone,
+            owner.address as owner_address,
             CONCAT(vet_user.first_name, ' ', vet_user.last_name) as vet_name
             FROM appointments a
             JOIN pets p ON a.pet_id = p.id
@@ -69,13 +71,18 @@ switch ($report_type) {
                 $row['appointment_number'],
                 $row['pet_name'],
                 $row['species'],
+                $row['breed'],
+                $row['date_of_birth'],
+                $row['weight'],
                 $row['owner_name'],
                 $row['owner_email'],
                 $row['owner_phone'],
+                $row['owner_address'],
                 'Dr. ' . $row['vet_name'],
                 $row['reason'],
                 ucfirst($row['status']),
-                $row['notes']
+                $row['notes'],
+                $row['created_at']
             ]);
         }
         break;
@@ -166,6 +173,93 @@ switch ($report_type) {
                 $row['total_appointments'],
                 $row['completed_appointments'],
                 $row['medical_records_count']
+            ]);
+        }
+        break;
+        
+    case 'revenue_report':
+        // CSV headers for revenue - COMPREHENSIVE DATA
+        fputcsv($output, [
+            'Invoice ID', 'Appointment Number', 'Date', 'Client Name', 'Client Email', 'Client Phone',
+            'Total Amount', 'Payment Amount', 'Change Amount', 'Created Date'
+        ]);
+        
+        // Get ALL revenue data
+        $query = "SELECT 
+            i.id, i.total_amount, i.payment_amount, i.change_amount,
+            i.created_at, a.appointment_number,
+            CONCAT(u.first_name, ' ', u.last_name) as client_name,
+            u.email as client_email, u.phone as client_phone
+            FROM invoices i
+            JOIN users u ON i.client_id = u.id
+            LEFT JOIN appointments a ON i.appointment_id = a.id
+            WHERE DATE(i.created_at) BETWEEN :date_from AND :date_to
+            ORDER BY i.created_at DESC";
+            
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':date_from', $date_from);
+        $stmt->bindParam(':date_to', $date_to);
+        $stmt->execute();
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            fputcsv($output, [
+                'INV-' . str_pad($row['id'], 6, '0', STR_PAD_LEFT),
+                $row['appointment_number'],
+                date('Y-m-d H:i:s', strtotime($row['created_at'])),
+                $row['client_name'],
+                $row['client_email'],
+                $row['client_phone'],
+                $row['total_amount'],
+                $row['payment_amount'],
+                $row['change_amount'],
+                $row['created_at']
+            ]);
+        }
+        break;
+        
+    case 'medical_records':
+        // CSV headers for medical records - COMPREHENSIVE DATA
+        fputcsv($output, [
+            'Record Date', 'Pet Name', 'Species', 'Breed', 'Pet DOB', 'Owner Name', 
+            'Owner Email', 'Owner Phone', 'Veterinarian', 'Diagnosis', 'Treatment',
+            'Medications', 'Notes', 'Created Date'
+        ]);
+        
+        // Get ALL medical records data
+        $query = "SELECT 
+            mr.record_date, mr.diagnosis, mr.treatment, mr.medications, mr.notes, mr.created_at,
+            p.name as pet_name, p.species, p.breed, p.date_of_birth,
+            CONCAT(owner.first_name, ' ', owner.last_name) as owner_name,
+            owner.email as owner_email, owner.phone as owner_phone,
+            CONCAT(vet.first_name, ' ', vet.last_name) as vet_name
+            FROM medical_records mr
+            JOIN pets p ON mr.pet_id = p.id
+            JOIN users owner ON p.owner_id = owner.id
+            JOIN users vet ON mr.created_by = vet.id
+            WHERE DATE(mr.record_date) BETWEEN :date_from AND :date_to
+            ORDER BY mr.record_date DESC";
+            
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':date_from', $date_from);
+        $stmt->bindParam(':date_to', $date_to);
+        $stmt->execute();
+        
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            fputcsv($output, [
+                $row['record_date'],
+                $row['pet_name'],
+                $row['species'],
+                $row['breed'],
+                $row['date_of_birth'],
+                $row['owner_name'],
+                $row['owner_email'],
+                $row['owner_phone'],
+                'Dr. ' . $row['vet_name'],
+                $row['diagnosis'],
+                $row['treatment'],
+                $row['medications'],
+                $row['notes'],
+                $row['created_at']
             ]);
         }
         break;

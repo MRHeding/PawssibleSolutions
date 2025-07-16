@@ -87,37 +87,40 @@ switch ($report_type) {
             </div>
         </div>';
         
-        // Get appointments data
+        // Get appointments data - ALL APPOINTMENTS (removed LIMIT)
         $query = "SELECT 
             a.appointment_date, a.appointment_time, a.appointment_number,
-            p.name as pet_name, p.species,
+            p.name as pet_name, p.species, p.breed, p.date_of_birth,
             CONCAT(owner.first_name, ' ', owner.last_name) as owner_name,
+            owner.email as owner_email, owner.phone as owner_phone,
             CONCAT(vet_user.first_name, ' ', vet_user.last_name) as vet_name,
-            a.reason, a.status
+            a.reason, a.status, a.notes
             FROM appointments a
             JOIN pets p ON a.pet_id = p.id
             JOIN users owner ON p.owner_id = owner.id
             JOIN vets v ON a.vet_id = v.id
             JOIN users vet_user ON v.user_id = vet_user.id
             WHERE a.appointment_date BETWEEN :date_from AND :date_to
-            ORDER BY a.appointment_date ASC, a.appointment_time ASC
-            LIMIT 50";
+            ORDER BY a.appointment_date ASC, a.appointment_time ASC";
         
         $stmt = $db->prepare($query);
         $stmt->bindParam(':date_from', $date_from);
         $stmt->bindParam(':date_to', $date_to);
         $stmt->execute();
         
-        $html .= '<div class="section-title">Appointment Details</div>
+        $html .= '<div class="section-title">All Appointment Details</div>
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Time</th>
-                    <th>Pet & Owner</th>
+                    <th>Appt #</th>
+                    <th>Pet Details</th>
+                    <th>Owner Details</th>
                     <th>Veterinarian</th>
                     <th>Reason</th>
                     <th>Status</th>
+                    <th>Notes</th>
                 </tr>
             </thead>
             <tbody>';
@@ -126,10 +129,13 @@ switch ($report_type) {
             $html .= '<tr>
                 <td>' . date('M d, Y', strtotime($row['appointment_date'])) . '</td>
                 <td>' . date('g:i A', strtotime($row['appointment_time'])) . '</td>
-                <td>' . htmlspecialchars($row['pet_name']) . '<br><small>' . htmlspecialchars($row['owner_name']) . '</small></td>
+                <td>' . htmlspecialchars($row['appointment_number']) . '</td>
+                <td>' . htmlspecialchars($row['pet_name']) . '<br><small>' . htmlspecialchars($row['species']) . ' - ' . htmlspecialchars($row['breed']) . '<br>DOB: ' . htmlspecialchars($row['date_of_birth']) . '</small></td>
+                <td>' . htmlspecialchars($row['owner_name']) . '<br><small>' . htmlspecialchars($row['owner_email']) . '<br>' . htmlspecialchars($row['owner_phone']) . '</small></td>
                 <td>Dr. ' . htmlspecialchars($row['vet_name']) . '</td>
                 <td>' . htmlspecialchars($row['reason']) . '</td>
                 <td>' . ucfirst($row['status']) . '</td>
+                <td>' . htmlspecialchars($row['notes']) . '</td>
             </tr>';
         }
         
@@ -160,27 +166,26 @@ switch ($report_type) {
             </div>
         </div>';
         
-        // Get clients data
+        // Get ALL clients data (removed LIMIT)
         $query = "SELECT 
             CONCAT(u.first_name, ' ', u.last_name) as client_name,
             u.email, u.phone,
             COUNT(DISTINCT p.id) as total_pets,
             COUNT(DISTINCT a.id) as total_appointments,
+            SUM(CASE WHEN a.status = 'completed' THEN 1 ELSE 0 END) as completed_appointments,
+            MAX(a.appointment_date) as last_appointment_date,
             u.created_at
             FROM users u
             LEFT JOIN pets p ON u.id = p.owner_id
             LEFT JOIN appointments a ON p.id = a.pet_id
-            WHERE u.role = 'client' AND u.created_at BETWEEN :date_from AND :date_to
+            WHERE u.role = 'client'
             GROUP BY u.id
-            ORDER BY u.created_at DESC
-            LIMIT 30";
+            ORDER BY u.created_at DESC";
         
         $stmt = $db->prepare($query);
-        $stmt->bindParam(':date_from', $date_from);
-        $stmt->bindParam(':date_to', $date_to);
         $stmt->execute();
         
-        $html .= '<div class="section-title">New Client Details</div>
+        $html .= '<div class="section-title">All Client Details</div>
         <table>
             <thead>
                 <tr>
@@ -188,7 +193,9 @@ switch ($report_type) {
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Pets</th>
-                    <th>Appointments</th>
+                    <th>Total Appts</th>
+                    <th>Completed</th>
+                    <th>Last Visit</th>
                     <th>Registration Date</th>
                 </tr>
             </thead>
@@ -201,6 +208,8 @@ switch ($report_type) {
                 <td>' . htmlspecialchars($row['phone']) . '</td>
                 <td>' . $row['total_pets'] . '</td>
                 <td>' . $row['total_appointments'] . '</td>
+                <td>' . $row['completed_appointments'] . '</td>
+                <td>' . ($row['last_appointment_date'] ? date('M d, Y', strtotime($row['last_appointment_date'])) : 'Never') . '</td>
                 <td>' . date('M d, Y', strtotime($row['created_at'])) . '</td>
             </tr>';
         }
@@ -259,6 +268,134 @@ switch ($report_type) {
                 <td>' . htmlspecialchars(ucfirst($species['species'])) . '</td>
                 <td>' . $species['count'] . '</td>
                 <td>' . number_format($percentage, 1) . '%</td>
+            </tr>';
+        }
+        
+        $html .= '</tbody></table>';
+        break;
+        
+    case 'revenue_report':
+        // Get ALL revenue data
+        $revenue_query = "SELECT 
+            i.id, i.total_amount, i.payment_amount, i.change_amount,
+            i.created_at, a.appointment_number,
+            CONCAT(u.first_name, ' ', u.last_name) as client_name,
+            u.email as client_email, u.phone as client_phone
+            FROM invoices i
+            JOIN users u ON i.client_id = u.id
+            LEFT JOIN appointments a ON i.appointment_id = a.id
+            WHERE DATE(i.created_at) BETWEEN :date_from AND :date_to
+            ORDER BY i.created_at DESC";
+            
+        $revenue_stmt = $db->prepare($revenue_query);
+        $revenue_stmt->bindParam(':date_from', $date_from);
+        $revenue_stmt->bindParam(':date_to', $date_to);
+        $revenue_stmt->execute();
+        
+        // Get revenue statistics
+        $total_revenue = 0;
+        $invoice_count = 0;
+        $revenue_data = [];
+        
+        while ($row = $revenue_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $revenue_data[] = $row;
+            $total_revenue += $row['total_amount'];
+            $invoice_count++;
+        }
+        
+        $html .= '<div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">' . $invoice_count . '</div>
+                <div class="stat-label">Total Invoices</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">₱' . number_format($total_revenue, 2) . '</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">₱' . ($invoice_count > 0 ? number_format($total_revenue / $invoice_count, 2) : '0.00') . '</div>
+                <div class="stat-label">Average Invoice</div>
+            </div>
+        </div>';
+        
+        $html .= '<div class="section-title">All Revenue Details</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice ID</th>
+                    <th>Appointment #</th>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Contact</th>
+                    <th>Amount</th>
+                    <th>Payment</th>
+                    <th>Change</th>
+                </tr>
+            </thead>
+            <tbody>';
+            
+        foreach ($revenue_data as $row) {
+            $html .= '<tr>
+                <td>INV-' . str_pad($row['id'], 6, '0', STR_PAD_LEFT) . '</td>
+                <td>' . htmlspecialchars($row['appointment_number']) . '</td>
+                <td>' . date('M d, Y', strtotime($row['created_at'])) . '</td>
+                <td>' . htmlspecialchars($row['client_name']) . '</td>
+                <td>' . htmlspecialchars($row['client_email']) . '<br><small>' . htmlspecialchars($row['client_phone']) . '</small></td>
+                <td>₱' . number_format($row['total_amount'], 2) . '</td>
+                <td>₱' . number_format($row['payment_amount'], 2) . '</td>
+                <td>₱' . number_format($row['change_amount'], 2) . '</td>
+            </tr>';
+        }
+        
+        $html .= '</tbody></table>';
+        break;
+        
+    case 'medical_records':
+        // Get ALL medical records data
+        $records_query = "SELECT 
+            mr.id, mr.record_date, mr.diagnosis, mr.treatment, mr.medications, mr.notes,
+            p.name as pet_name, p.species, p.breed, p.date_of_birth,
+            CONCAT(owner.first_name, ' ', owner.last_name) as owner_name,
+            owner.email as owner_email, owner.phone as owner_phone,
+            CONCAT(vet.first_name, ' ', vet.last_name) as vet_name
+            FROM medical_records mr
+            JOIN pets p ON mr.pet_id = p.id
+            JOIN users owner ON p.owner_id = owner.id
+            JOIN users vet ON mr.created_by = vet.id
+            WHERE DATE(mr.record_date) BETWEEN :date_from AND :date_to
+            ORDER BY mr.record_date DESC";
+            
+        $records_stmt = $db->prepare($records_query);
+        $records_stmt->bindParam(':date_from', $date_from);
+        $records_stmt->bindParam(':date_to', $date_to);
+        $records_stmt->execute();
+        
+        $html .= '<div class="section-title">All Medical Records</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Pet Details</th>
+                    <th>Owner</th>
+                    <th>Veterinarian</th>
+                    <th>Diagnosis</th>
+                    <th>Treatment</th>
+                    <th>Medications</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>';
+            
+        while ($row = $records_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $html .= '<tr>
+                <td>' . date('M d, Y', strtotime($row['record_date'])) . '</td>
+                <td>' . htmlspecialchars($row['pet_name']) . '<br><small>' . htmlspecialchars($row['species']) . ' - ' . htmlspecialchars($row['breed']) . '<br>DOB: ' . htmlspecialchars($row['date_of_birth']) . '</small></td>
+                <td>' . htmlspecialchars($row['owner_name']) . '<br><small>' . htmlspecialchars($row['owner_email']) . '</small></td>
+                <td>Dr. ' . htmlspecialchars($row['vet_name']) . '</td>
+                <td>' . htmlspecialchars($row['diagnosis']) . '</td>
+                <td>' . htmlspecialchars($row['treatment']) . '</td>
+                <td>' . htmlspecialchars($row['medications']) . '</td>
+                <td>' . htmlspecialchars($row['notes']) . '</td>
             </tr>';
         }
         

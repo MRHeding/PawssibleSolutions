@@ -189,6 +189,18 @@ while ($setting = $settings_stmt->fetch(PDO::FETCH_ASSOC)) {
                                 <span class="text-gray-600">Payment Method:</span>
                                 <span class="font-medium capitalize"><?php echo str_replace('_', ' ', $invoice['payment_method']); ?></span>
                             </div>
+                            <?php if ($invoice['payment_amount']): ?>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Amount Paid:</span>
+                                    <span class="font-medium text-green-600">₱<?php echo number_format($invoice['payment_amount'], 2); ?></span>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($invoice['change_amount'] && $invoice['change_amount'] > 0): ?>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Change Given:</span>
+                                    <span class="font-medium text-blue-600">₱<?php echo number_format($invoice['change_amount'], 2); ?></span>
+                                </div>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -246,10 +258,23 @@ while ($setting = $settings_stmt->fetch(PDO::FETCH_ASSOC)) {
                             </div>
                             <?php if ($invoice['paid']): ?>
                                 <div class="border-t border-gray-300 pt-3">
-                                    <div class="flex justify-between text-lg font-semibold text-green-600">
-                                        <span>Amount Paid:</span>
-                                        <span>₱<?php echo number_format($invoice['total_amount'], 2); ?></span>
-                                    </div>
+                                    <?php if ($invoice['payment_amount']): ?>
+                                        <div class="flex justify-between text-lg font-semibold text-green-600">
+                                            <span>Amount Paid:</span>
+                                            <span>₱<?php echo number_format($invoice['payment_amount'], 2); ?></span>
+                                        </div>
+                                        <?php if ($invoice['change_amount'] && $invoice['change_amount'] > 0): ?>
+                                            <div class="flex justify-between text-lg font-semibold text-blue-600">
+                                                <span>Change Given:</span>
+                                                <span>₱<?php echo number_format($invoice['change_amount'], 2); ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <div class="flex justify-between text-lg font-semibold text-green-600">
+                                            <span>Amount Paid:</span>
+                                            <span>₱<?php echo number_format($invoice['total_amount'], 2); ?></span>
+                                        </div>
+                                    <?php endif; ?>
                                     <div class="flex justify-between text-lg font-semibold">
                                         <span>Balance Due:</span>
                                         <span>₱0.00</span>
@@ -270,12 +295,22 @@ while ($setting = $settings_stmt->fetch(PDO::FETCH_ASSOC)) {
 
             <!-- Notes -->
             <?php if (!empty($invoice['notes'])): ?>
-                <div class="mb-8">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Notes:</h4>
-                    <div class="bg-gray-50 p-4 rounded">
-                        <p class="text-gray-700 whitespace-pre-line"><?php echo htmlspecialchars($invoice['notes']); ?></p>
+                <?php 
+                // Clean up notes to remove any change information that might still be there
+                $cleaned_notes = $invoice['notes'];
+                $cleaned_notes = preg_replace('/\n\nPayment Notes:\s*\nChange Given: ₱[\d,]+\.?\d*/', "\n\nPayment Notes:", $cleaned_notes);
+                $cleaned_notes = preg_replace('/Payment Notes:\s*\nChange Given: ₱[\d,]+\.?\d*/', "Payment Notes:", $cleaned_notes);
+                $cleaned_notes = preg_replace('/\nChange Given: ₱[\d,]+\.?\d*/', '', $cleaned_notes);
+                $cleaned_notes = trim($cleaned_notes);
+                ?>
+                <?php if (!empty($cleaned_notes) && $cleaned_notes !== 'Payment Notes:'): ?>
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Notes:</h4>
+                        <div class="bg-gray-50 p-4 rounded">
+                            <p class="text-gray-700 whitespace-pre-line"><?php echo htmlspecialchars($cleaned_notes); ?></p>
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
             <?php endif; ?>
 
             <!-- Footer -->

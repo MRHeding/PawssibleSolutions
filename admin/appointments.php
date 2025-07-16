@@ -308,6 +308,11 @@ include_once '../includes/admin_header.php';
                                                     <i class="fas fa-check-circle"></i>
                                                 </span>
                                             <?php endif; ?>
+                                            
+                                            <!-- Follow-up appointment button for completed appointments -->
+                                            <a href="view_appointment.php?id=<?php echo $appointment['id']; ?>#followup" class="text-indigo-600 hover:text-indigo-900 ml-2" title="Schedule Follow-up Appointment">
+                                                <i class="fas fa-calendar-plus"></i>
+                                            </a>
                                         <?php endif; ?>
                                         
                                         <?php if ($user_role === 'admin'): ?>

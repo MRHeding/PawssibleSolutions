@@ -253,6 +253,11 @@ include_once '../includes/vet_header.php';
                                             <a href="view_medical_record.php?appointment_id=<?php echo $appointment['id']; ?>" class="text-green-600 hover:text-green-900" title="View/Edit Medical Record">
                                                 <i class="fas fa-file-medical"></i>
                                             </a>
+                                            
+                                            <!-- Follow-up appointment button for completed appointments -->
+                                            <a href="view_appointment.php?id=<?php echo $appointment['id']; ?>#followup" class="text-indigo-600 hover:text-indigo-900" title="Schedule Follow-up Appointment">
+                                                <i class="fas fa-calendar-plus"></i>
+                                            </a>
                                         <?php endif; ?>
                                     </div>
                                 </td>
