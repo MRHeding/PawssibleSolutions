@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 17, 2025 at 02:26 AM
+-- Generation Time: Jul 15, 2025 at 05:15 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -46,8 +46,9 @@ CREATE TABLE `appointments` (
 --
 
 INSERT INTO `appointments` (`id`, `appointment_number`, `pet_id`, `vet_id`, `appointment_date`, `appointment_time`, `reason`, `notes`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'A20250001', 1, 6, '2025-07-17', '14:00:00', 'Wellness Exam', 'May pet is tired all the time and not eating his favorite food', 'completed', '2025-07-16 13:03:15', '2025-07-16 13:05:51'),
-(2, 'A20250002', 1, 6, '2025-07-18', '13:00:00', 'Check-up', 'Be on time po salamat', 'scheduled', '2025-07-16 13:06:33', '2025-07-16 13:06:33');
+(19, 'A20250001', 4, 5, '2025-07-13', '16:18:00', 'Sick Visit', '', 'cancelled', '2025-07-13 08:18:20', '2025-07-13 08:32:50'),
+(20, 'A20250002', 4, 5, '2025-07-13', '18:24:00', 'Wellness Exam', '', 'completed', '2025-07-13 08:24:53', '2025-07-13 08:40:53'),
+(21, 'A20250003', 4, 5, '2025-07-14', '11:30:00', 'Wellness Exam', '', 'completed', '2025-07-14 03:35:36', '2025-07-14 03:36:45');
 
 -- --------------------------------------------------------
 
@@ -76,8 +77,7 @@ CREATE TABLE `inventory` (
 --
 
 INSERT INTO `inventory` (`id`, `name`, `category`, `description`, `quantity`, `unit`, `unit_price`, `reorder_level`, `supplier`, `expiry_date`, `location`, `created_at`, `updated_at`) VALUES
-(1, 'Whiskas', 'Food', 'Cat Food', 9, 'pack', 150.00, 2, 'SM Supermall', '2028-06-16', 'Cabinet A1', '2025-07-16 13:17:10', '2025-07-17 00:24:42'),
-(2, 'Amoxcillin', 'Medicine', 'Antibiotics', 9, 'tablets', 10.00, 2, 'SM Supermall', '2027-10-12', 'Cabinet A2', '2025-07-16 13:18:08', '2025-07-17 00:24:42');
+(4, 'Whiskas', 'Food', 'Cat Food', 9, 'pack', 150.00, 3, 'SM Supermall', '2025-08-31', 'Cabinet A1', '2025-07-14 03:25:47', '2025-07-14 03:40:49');
 
 -- --------------------------------------------------------
 
@@ -93,8 +93,6 @@ CREATE TABLE `invoices` (
   `paid` tinyint(1) DEFAULT 0,
   `payment_date` datetime DEFAULT NULL,
   `payment_method` varchar(50) DEFAULT NULL,
-  `payment_amount` decimal(10,2) DEFAULT NULL,
-  `change_amount` decimal(10,2) DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -104,8 +102,11 @@ CREATE TABLE `invoices` (
 -- Dumping data for table `invoices`
 --
 
-INSERT INTO `invoices` (`id`, `appointment_id`, `client_id`, `total_amount`, `paid`, `payment_date`, `payment_method`, `payment_amount`, `change_amount`, `notes`, `created_at`, `updated_at`) VALUES
-(1, 1, 22, 660.00, 1, '2025-07-17 08:25:06', 'cash', 1000.00, 340.00, 'Auto-generated invoice for appointment A20250001 - Service: Wellness Exam', '2025-07-16 13:05:51', '2025-07-17 00:25:06');
+INSERT INTO `invoices` (`id`, `appointment_id`, `client_id`, `total_amount`, `paid`, `payment_date`, `payment_method`, `notes`, `created_at`, `updated_at`) VALUES
+(3, NULL, 18, 275.00, 0, NULL, NULL, '', '2025-07-12 04:13:35', '2025-07-13 06:54:07'),
+(4, NULL, 18, 35.00, 0, NULL, NULL, 'Services provided: Wellness Exam', '2025-07-13 06:36:43', '2025-07-13 06:44:33'),
+(7, 20, 18, 500.00, 1, '2025-07-13 16:49:59', 'cash', 'Auto-generated invoice for appointment A20250002 - Service: Wellness Exam\n\nPayment Notes: ', '2025-07-13 08:40:51', '2025-07-13 08:49:59'),
+(8, 21, 18, 650.00, 1, '2025-07-14 11:41:09', 'cash', 'Auto-generated invoice for appointment A20250003 - Service: Wellness Exam\n\nPayment Notes: ', '2025-07-14 03:36:01', '2025-07-14 03:41:09');
 
 -- --------------------------------------------------------
 
@@ -128,9 +129,12 @@ CREATE TABLE `invoice_items` (
 --
 
 INSERT INTO `invoice_items` (`id`, `invoice_id`, `service_id`, `description`, `quantity`, `unit_price`, `total_price`) VALUES
-(2, 1, NULL, 'Wellness Exam', 1, 500.00, 500.00),
-(3, 1, NULL, 'Whiskas (pack)', 1, 150.00, 150.00),
-(4, 1, NULL, 'Amoxcillin (tablets)', 1, 10.00, 10.00);
+(4, 4, 3, 'Vaccination - Non-Core', 1, 35.00, 35.00),
+(5, 3, 4, 'Dental Cleaning', 1, 250.00, 250.00),
+(6, 3, 14, 'Anal Gland Expression', 1, 25.00, 25.00),
+(7, 7, NULL, 'Wellness Exam', 1, 500.00, 500.00),
+(19, 8, 1, 'Wellness Exam', 1, 500.00, 500.00),
+(20, 8, NULL, 'Whiskas (pack)', 1, 150.00, 150.00);
 
 -- --------------------------------------------------------
 
@@ -158,7 +162,8 @@ CREATE TABLE `medical_records` (
 --
 
 INSERT INTO `medical_records` (`id`, `pet_id`, `appointment_id`, `record_date`, `record_type`, `diagnosis`, `treatment`, `medications`, `notes`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, '2025-07-16', 'Wellness Exam', 'Bacterial Infections', 'Antibiotics', 'Amoxicillin', 'Always pakainin sa oras ang pusa', 1, '2025-07-16 13:07:26', '2025-07-16 13:07:26');
+(8, 4, 20, '2025-07-13', 'Wellness Exam', 'Bacterial Infections', 'Antibiotics', 'Amoxicillin', '', 1, '2025-07-13 08:48:13', '2025-07-13 08:48:13'),
+(9, 4, 21, '2025-07-14', 'Wellness Exam', 'Hungry', 'Cat Food', 'Whiskas', 'Always Feed the Cat on Time', 1, '2025-07-14 03:36:40', '2025-07-14 03:36:40');
 
 -- --------------------------------------------------------
 
@@ -185,7 +190,7 @@ CREATE TABLE `pets` (
 --
 
 INSERT INTO `pets` (`id`, `owner_id`, `name`, `species`, `breed`, `gender`, `date_of_birth`, `weight`, `microchip_id`, `created_at`, `updated_at`) VALUES
-(1, 22, 'Molly', 'Cat', 'Other', 'male', '2022-11-16', 2.00, NULL, '2025-07-16 13:02:14', '2025-07-16 13:02:14');
+(4, 18, 'Molly', 'Cat', 'Other', 'male', '2025-07-09', 5.00, NULL, '2025-07-09 01:30:27', '2025-07-09 01:30:27');
 
 -- --------------------------------------------------------
 
@@ -204,6 +209,28 @@ CREATE TABLE `services` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `services`
+--
+
+INSERT INTO `services` (`id`, `name`, `description`, `price`, `duration`, `category`, `active`, `created_at`, `updated_at`) VALUES
+(1, 'Wellness Exam', 'Complete physical examination and health assessment', 60.00, 30, 'Preventive Care', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(2, 'Vaccination - Core', 'Essential vaccines for dogs or cats', 45.00, 15, 'Preventive Care', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(3, 'Vaccination - Non-Core', 'Additional vaccines based on risk assessment', 35.00, 15, 'Preventive Care', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(4, 'Dental Cleaning', 'Professional dental cleaning under anesthesia', 250.00, 120, 'Dental', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(5, 'Spay/Neuter - Dog', 'Surgical sterilization for dogs', 350.00, 90, 'Surgery', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(6, 'Spay/Neuter - Cat', 'Surgical sterilization for cats', 250.00, 60, 'Surgery', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(7, 'X-Ray', 'Digital radiography, per view', 120.00, 30, 'Diagnostics', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(8, 'Ultrasound', 'Abdominal or cardiac ultrasound', 200.00, 45, 'Diagnostics', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(9, 'Blood Work - Basic', 'Complete blood count and basic chemistry panel', 95.00, 20, 'Diagnostics', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(10, 'Blood Work - Comprehensive', 'Complete blood count and comprehensive chemistry panel', 165.00, 20, 'Diagnostics', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(11, 'Emergency Consultation', 'Urgent care consultation fee', 125.00, 45, 'Emergency', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(12, 'Microchipping', 'Includes microchip and registration', 45.00, 15, 'Preventive Care', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(13, 'Nail Trim', 'Trimming of nails for dogs or cats', 20.00, 15, 'Grooming', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(14, 'Anal Gland Expression', 'Manual expression of anal glands', 25.00, 15, 'Preventive Care', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(15, 'Euthanasia', 'Humane euthanasia service', 150.00, 60, 'End of Life Care', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55'),
+(16, 'Allergy Testing', 'Blood test for environmental and food allergies', 250.00, 30, 'Diagnostics', 1, '2025-03-25 15:25:55', '2025-03-25 15:25:55');
 
 -- --------------------------------------------------------
 
@@ -260,11 +287,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `first_name`, `last_name`, `email`, `phone`, `role`, `last_login`, `created_at`, `updated_at`) VALUES
-(1, 'admin', 'admin', 'Admin', 'User', 'admin@petcare.com', '123-456-7890', 'admin', '2025-07-16 21:04:34', '2025-03-25 15:25:55', '2025-07-16 13:04:34'),
-(19, 'msantos', '$2y$10$JuQ0bkwVjGu77uAEAJA1OOX9p9gNO.JLwufcyNo6YKREdRwu8/DNG', 'Maria', 'Santos', 'santosmaria@yahoo.com', '09918195432', 'vet', '2025-07-16 21:03:56', '2025-07-16 12:55:43', '2025-07-16 13:03:56'),
-(20, 'abrillantes', '$2y$10$ZBPYi/Z9yQxRJGxmrNTLgO.cNn1oVSaac.3PldczBTslcvFgLTUV.', 'Andrea', 'Brillantes', 'brillantesandrea20@gmail.com', '09918195433', 'vet', NULL, '2025-07-16 12:58:36', '2025-07-16 12:58:36'),
-(21, 'jrizal', '$2y$10$7xd65pHQL69gSZ4Z3iH4EuuDENe1CcFBlGbJ5pF5Mra5mdoIAmoK2', 'Jose', 'Rizal', 'joserizal1889@outlook.com', '09918195434', 'vet', NULL, '2025-07-16 13:00:25', '2025-07-16 13:00:25'),
-(22, 'ken', '$2y$10$liMz1pKvirffXdxOCm1Cw.AwORW/BtPCIu8SLbHYiSRN4ElBnJRIW', 'ken', 'ken', 'kenken@gmail.com', '09918195435', 'client', '2025-07-16 21:01:23', '2025-07-16 13:01:15', '2025-07-16 13:01:23');
+(1, 'admin', 'admin', 'Admin', 'User', 'admin@petcare.com', '123-456-7890', 'admin', '2025-07-14 11:35:47', '2025-03-25 15:25:55', '2025-07-14 03:35:47'),
+(2, 'sherly', 'sherly', 'Sherly', 'Admin', 'sherly@petcare.com', '123-456-7897', 'admin', '2025-06-18 22:38:42', '2025-03-25 15:25:55', '2025-06-18 14:38:42'),
+(17, 'jmahamud', '$2y$10$SQgBLqcmpQdBJmTOx4ThjuOLvCYD18UXghH8JYu40TJgJ.kwdkNR6', 'Julsiya', 'Mahamud', 'rrasheed121099@gmail.com', '09918195487', 'vet', '2025-06-18 23:20:35', '2025-06-18 15:20:23', '2025-06-18 15:20:35'),
+(18, 'rasheed', '$2y$10$fqJGX1S4eP2FsGHdXxAu7.VeK9qWojzQXYeL/xa6dK2DaJcVsOG1u', 'Rasheed', 'Heding', 'rasheed121099@gmail.com', '09918195487', 'client', '2025-07-15 00:20:18', '2025-06-18 17:20:21', '2025-07-14 16:20:18');
 
 -- --------------------------------------------------------
 
@@ -286,10 +312,7 @@ CREATE TABLE `vets` (
 --
 
 INSERT INTO `vets` (`id`, `user_id`, `specialization`, `license_number`, `years_of_experience`, `bio`) VALUES
-(5, 17, 'Medicine', '9248WS', 13, 'Hello World'),
-(6, 19, 'Medicine', 'VL1990', 2, 'Pet lover veterinarian'),
-(7, 20, 'Surgery', 'VL2000', 5, 'Hello Hi!'),
-(8, 21, 'Dental', 'VL1889', 10, 'Professional Veterinarian at your service');
+(5, 17, 'Medicine', '9248WS', 13, 'Hello World');
 
 --
 -- Indexes for dumped tables
@@ -383,43 +406,43 @@ ALTER TABLE `vets`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `inventory`
 --
 ALTER TABLE `inventory`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `invoices`
 --
 ALTER TABLE `invoices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `invoice_items`
 --
 ALTER TABLE `invoice_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `medical_records`
 --
 ALTER TABLE `medical_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `pets`
 --
 ALTER TABLE `pets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `services`
 --
 ALTER TABLE `services`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `settings`
@@ -431,13 +454,13 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `vets`
 --
 ALTER TABLE `vets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
