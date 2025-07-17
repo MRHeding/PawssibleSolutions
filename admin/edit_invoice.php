@@ -359,14 +359,40 @@ include_once '../includes/admin_header.php';
                                     <?php else: ?>
                                         <select name="services[<?php echo $index; ?>][service_id]" class="service-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500" required>
                                             <option value="">Select Service</option>
-                                            <option value="Check-up" data-price="500.00" data-name="Regular Check-up" <?php echo ($item['description'] == 'Regular Check-up') ? 'selected' : ''; ?>>Regular Check-up</option>
-                                            <option value="Vaccination" data-price="500.00" data-name="Vaccination" <?php echo ($item['description'] == 'Vaccination') ? 'selected' : ''; ?>>Vaccination</option>
-                                            <option value="Illness" data-price="1000.00" data-name="Illness" <?php echo ($item['description'] == 'Illness') ? 'selected' : ''; ?>>Illness</option>
-                                            <option value="Injury" data-price="2000.00" data-name="Injury" <?php echo ($item['description'] == 'Injury') ? 'selected' : ''; ?>>Injury</option>
-                                            <option value="Surgery" data-price="700.00" data-name="Surgery" <?php echo ($item['description'] == 'Surgery') ? 'selected' : ''; ?>>Surgery</option>
-                                            <option value="Dental" data-price="500.00" data-name="Dental Care" <?php echo ($item['description'] == 'Dental Care') ? 'selected' : ''; ?>>Dental Care</option>
-                                            <option value="Follow-up" data-price="300.00" data-name="Follow-up Visit" <?php echo ($item['description'] == 'Follow-up Visit') ? 'selected' : ''; ?>>Follow-up Visit</option>
-                                            <option value="Other" data-price="500.00" data-name="Other" <?php echo ($item['description'] == 'Other') ? 'selected' : ''; ?>>Other</option>
+                                            <?php
+                                            // Map description to service option value for proper selection
+                                            $serviceMapping = [
+                                                'Regular Check-up' => 'Check-up',
+                                                'Wellness Exam' => 'Check-up',  // Map database service to appointment service
+                                                'Vaccination' => 'Vaccination', 
+                                                'Vaccination - Core' => 'Vaccination',
+                                                'Vaccination - Non-Core' => 'Vaccination',
+                                                'Illness' => 'Illness',
+                                                'Injury' => 'Injury',
+                                                'Surgery' => 'Surgery',
+                                                'Spay/Neuter - Dog' => 'Surgery',
+                                                'Spay/Neuter - Cat' => 'Surgery',
+                                                'Dental Care' => 'Dental',
+                                                'Dental Cleaning' => 'Dental',
+                                                'Follow-up Visit' => 'Follow-up',
+                                                'Other' => 'Other',
+                                                'Emergency Consultation' => 'Other',
+                                                'Microchipping' => 'Other',
+                                                'Nail Trim' => 'Other',
+                                                'Anal Gland Expression' => 'Other'
+                                            ];
+                                            $selectedValue = isset($serviceMapping[$item['description']]) ? $serviceMapping[$item['description']] : '';
+                                            // Debug: Show what we're working with
+                                            // echo "<!-- Debug: Description='{$item['description']}', SelectedValue='$selectedValue' -->";
+                                            ?>
+                                            <option value="Check-up" data-price="500.00" data-name="Regular Check-up" <?php echo ($selectedValue == 'Check-up') ? 'selected' : ''; ?>>Regular Check-up</option>
+                                            <option value="Vaccination" data-price="500.00" data-name="Vaccination" <?php echo ($selectedValue == 'Vaccination') ? 'selected' : ''; ?>>Vaccination</option>
+                                            <option value="Illness" data-price="1000.00" data-name="Illness" <?php echo ($selectedValue == 'Illness') ? 'selected' : ''; ?>>Illness</option>
+                                            <option value="Injury" data-price="2000.00" data-name="Injury" <?php echo ($selectedValue == 'Injury') ? 'selected' : ''; ?>>Injury</option>
+                                            <option value="Surgery" data-price="700.00" data-name="Surgery" <?php echo ($selectedValue == 'Surgery') ? 'selected' : ''; ?>>Surgery</option>
+                                            <option value="Dental" data-price="500.00" data-name="Dental Care" <?php echo ($selectedValue == 'Dental') ? 'selected' : ''; ?>>Dental Care</option>
+                                            <option value="Follow-up" data-price="300.00" data-name="Follow-up Visit" <?php echo ($selectedValue == 'Follow-up') ? 'selected' : ''; ?>>Follow-up Visit</option>
+                                            <option value="Other" data-price="500.00" data-name="Other" <?php echo ($selectedValue == 'Other') ? 'selected' : ''; ?>>Other</option>
                                         </select>
                                     <?php endif; ?>
                                 </div>
